@@ -1,0 +1,15 @@
+name: Bug report
+description: Report a reproducible SDK problem
+body:
+  - type: input
+    id: version
+    attributes:
+      label: SDK version
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+    validations:
+      required: true

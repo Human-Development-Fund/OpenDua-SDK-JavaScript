@@ -1,0 +1,49 @@
+{
+  "id": "OD-001",
+  "slug": "when-you-wake-up-1",
+  "title": "Supplications for when you wake up (1 of 4)",
+  "arabic": "الْحَمْدُ للَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا، وَإِلَيْهِ النُّشُورُ",
+  "form": "dua",
+  "rubric": null,
+  "closing": null,
+  "parts": [],
+  "asides": null,
+  "countRubric": null,
+  "note": null,
+  "noteArabic": null,
+  "arabicScript": "imlaei",
+  "incipit": "الْحَمْدُ للَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا،",
+  "transliteration": "Al-ḥamdu li-llāhi alladhī aḥyānā baʿda mā amātanā, wa ilayhi an-nushūr",
+  "transliterationSource": "open-dua",
+  "translation": "All praise is for Allah who gave us life after having taken it from us and unto Him is the resurrection.",
+  "translationSource": "open-dua",
+  "source": "Hisn al-Muslim 1",
+  "grading": null,
+  "gradingNote": "Reference as printed in Hisn al-Muslim; grading pending review",
+  "footnotes": [
+    "البخاري مع الفتح، 11/ 113، برقم 6314، ومسلم، 4/ 2083، برقم 2711."
+  ],
+  "virtues": null,
+  "repetition": 1,
+  "categories": [
+    "when-you-wake-up"
+  ],
+  "tags": [
+    "hisn-al-muslim",
+    "sleep-and-waking"
+  ],
+  "audio": {
+    "objectKey": "hisn/v0.0.1/OD-001.mp3",
+    "durationSeconds": 16,
+    "sampleRateHz": 24000,
+    "reciter": "Muhammad Juma"
+  },
+  "review": {
+    "status": "sourced",
+    "by": "Hisn al-Muslim, publisher's edition (hisnmuslim.com)",
+    "date": "2026-09-07"
+  },
+  "contentVersion": 2,
+  "rightsProfile": "hisn-open-dua-modern",
+  "contentHash": "sha256:7f0ca8eaf4ee1e9eedefbb81fc8020265827daaf892dac99b2a3c4a2f8a4361e"
+}

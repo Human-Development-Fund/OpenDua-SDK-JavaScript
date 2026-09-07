@@ -1,0 +1,43 @@
+{
+  "name": "@opendua/sdk",
+  "version": "0.1.0-rc.1",
+  "description": "Typed JavaScript and TypeScript client for the OpenDua API",
+  "type": "module",
+  "sideEffects": false,
+  "files": ["dist", "README.md", "LICENSE", "CHANGELOG.md"],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm,cjs --dts --clean",
+    "check": "npm run generate:check && npm run typecheck && npm test && npm run build && publint && attw --pack . && npm pack --dry-run",
+    "generate": "openapi-typescript contracts/openapi.json -o src/generated/schema.ts",
+    "generate:check": "npm run generate && git diff --exit-code -- src/generated/schema.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {"node": ">=20"},
+  "publishConfig": {"access": "public", "provenance": true},
+  "keywords": ["dua", "islam", "supplication", "typescript", "sdk"],
+  "license": "MIT",
+  "devDependencies": {
+    "@arethetypeswrong/cli": "0.18.5",
+    "openapi-typescript": "7.13.0",
+    "publint": "0.3.24",
+    "tsup": "8.5.1",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  }
+}

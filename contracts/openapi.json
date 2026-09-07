@@ -1,0 +1,1086 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "OpenDua API",
+    "version": "1.0.0",
+    "description": "Read-only access to the versioned OpenDua corpus. Staging is a public developer preview; content is source-traceable but not yet scholar-reviewed.",
+    "license": {
+      "name": "CC BY 4.0 applies to OpenDua editorial material and dataset structure only",
+      "url": "https://creativecommons.org/licenses/by/4.0/"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.staging.opendua.org",
+      "description": "Public staging preview"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "API health",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "The current ETag matches; no body is returned"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      },
+      "head": {
+        "summary": "API health headers",
+        "responses": {
+          "200": {
+            "description": "Bodyless health response"
+          }
+        }
+      }
+    },
+    "/v1": {
+      "get": {
+        "summary": "API and current release metadata",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "description": "Immutable dataset version. Omit to use the current release.",
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+$",
+              "example": "0.0.2"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "The current ETag matches; no body is returned"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/v1/duas": {
+      "get": {
+        "summary": "List entries",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "description": "Immutable dataset version. Omit to use the current release.",
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+$",
+              "example": "0.0.2"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Page size.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "description": "Opaque cursor returned by the preceding page.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntryPage"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "The current ETag matches; no body is returned"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/v1/duas/{slug}": {
+      "get": {
+        "summary": "Get one entry by slug or stable ID",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Entry slug or stable ID such as OD-001."
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "description": "Immutable dataset version. Omit to use the current release.",
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+$",
+              "example": "0.0.2"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicEntry"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "The current ETag matches; no body is returned"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/collections/{slug}": {
+      "get": {
+        "summary": "List one chapter collection",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "description": "Immutable dataset version. Omit to use the current release.",
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+$",
+              "example": "0.0.2"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Page size.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "description": "Opaque cursor returned by the preceding page.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntryPage"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "The current ETag matches; no body is returned"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/search": {
+      "get": {
+        "summary": "Search Arabic, transliteration, English, sources, categories and tags",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "description": "Search query.",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "description": "Immutable dataset version. Omit to use the current release.",
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+$",
+              "example": "0.0.2"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Page size.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "description": "Opaque cursor returned by the preceding page.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntryPage"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "The current ETag matches; no body is returned"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/v1/rights": {
+      "get": {
+        "summary": "Get the field-group rights registry",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "description": "Immutable dataset version. Omit to use the current release.",
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+$",
+              "example": "0.0.2"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "The current ETag matches; no body is returned"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "PublicEntry": {
+        "title": "OpenDua public entry",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "slug",
+          "title",
+          "arabic",
+          "form",
+          "rubric",
+          "closing",
+          "parts",
+          "asides",
+          "countRubric",
+          "note",
+          "noteArabic",
+          "arabicScript",
+          "incipit",
+          "transliteration",
+          "transliterationSource",
+          "translation",
+          "translationSource",
+          "source",
+          "grading",
+          "gradingNote",
+          "footnotes",
+          "virtues",
+          "repetition",
+          "categories",
+          "tags",
+          "audio",
+          "review",
+          "contentVersion",
+          "rightsProfile",
+          "contentHash"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^OD-[0-9]{3}$"
+          },
+          "slug": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "arabic": {
+            "type": "string",
+            "minLength": 1
+          },
+          "form": {
+            "enum": [
+              "dua",
+              "quran",
+              "instruction",
+              "report"
+            ]
+          },
+          "rubric": {
+            "$ref": "#/components/schemas/PublicEntry/$defs/nullableRubric"
+          },
+          "closing": {
+            "$ref": "#/components/schemas/PublicEntry/$defs/nullableRubric"
+          },
+          "parts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicEntry/$defs/part"
+            }
+          },
+          "asides": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicEntry/$defs/asides"
+              }
+            ]
+          },
+          "countRubric": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicEntry/$defs/countRubric"
+              }
+            ]
+          },
+          "note": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "noteArabic": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "arabicScript": {
+            "enum": [
+              "imlaei",
+              "uthmani"
+            ]
+          },
+          "incipit": {
+            "type": "string"
+          },
+          "transliteration": {
+            "type": "string"
+          },
+          "transliterationSource": {
+            "type": "string"
+          },
+          "translation": {
+            "type": "string"
+          },
+          "translationSource": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "grading": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PublicEntry/$defs/grading"
+                },
+                "minItems": 1
+              }
+            ]
+          },
+          "gradingNote": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "footnotes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "virtues": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "text",
+                  "source"
+                ],
+                "properties": {
+                  "text": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          },
+          "repetition": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "audio": {
+            "$ref": "#/components/schemas/PublicEntry/$defs/audio"
+          },
+          "review": {
+            "$ref": "#/components/schemas/PublicEntry/$defs/review"
+          },
+          "contentVersion": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "rightsProfile": {
+            "type": "string",
+            "minLength": 1
+          },
+          "contentHash": {
+            "type": "string",
+            "pattern": "^sha256:[a-f0-9]{64}$"
+          }
+        },
+        "$defs": {
+          "nullableRubric": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PublicEntry/$defs/rubric"
+              }
+            ]
+          },
+          "rubric": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "text",
+              "transliteration",
+              "translation",
+              "translationSource"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "instruction",
+                  "narration"
+                ]
+              },
+              "text": {
+                "type": "string"
+              },
+              "transliteration": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "translation": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "translationSource": {
+                "type": "string"
+              }
+            }
+          },
+          "audio": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "objectKey",
+              "durationSeconds",
+              "sampleRateHz",
+              "reciter"
+            ],
+            "properties": {
+              "objectKey": {
+                "type": "string"
+              },
+              "durationSeconds": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "sampleRateHz": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "reciter": {
+                "type": "string"
+              },
+              "note": {
+                "type": "string"
+              }
+            }
+          },
+          "part": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "arabic",
+              "transliteration",
+              "translation",
+              "repetition",
+              "count",
+              "rubric",
+              "audio"
+            ],
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "arabic": {
+                "type": "string"
+              },
+              "transliteration": {
+                "type": "string"
+              },
+              "translation": {
+                "type": "string"
+              },
+              "repetition": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "count": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/PublicEntry/$defs/partCount"
+                  }
+                ]
+              },
+              "rubric": {
+                "$ref": "#/components/schemas/PublicEntry/$defs/nullableRubric"
+              },
+              "audio": {
+                "$ref": "#/components/schemas/PublicEntry/$defs/audio"
+              }
+            }
+          },
+          "partCount": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "ar",
+              "en",
+              "enSource",
+              "placement"
+            ],
+            "properties": {
+              "ar": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "en": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "enSource": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "placement": {
+                "enum": [
+                  "before",
+                  "after"
+                ]
+              }
+            }
+          },
+          "aside": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "text",
+              "source"
+            ],
+            "properties": {
+              "text": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              }
+            }
+          },
+          "asides": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "arabic",
+              "transliteration",
+              "translation"
+            ],
+            "properties": {
+              "arabic": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PublicEntry/$defs/aside"
+                }
+              },
+              "transliteration": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PublicEntry/$defs/aside"
+                }
+              },
+              "translation": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/PublicEntry/$defs/aside"
+                }
+              }
+            }
+          },
+          "countRubric": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "ar",
+              "en",
+              "enSource"
+            ],
+            "properties": {
+              "ar": {
+                "type": "string"
+              },
+              "en": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "enSource": {
+                "type": "string"
+              }
+            }
+          },
+          "grading": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "grade",
+              "by"
+            ],
+            "properties": {
+              "grade": {
+                "type": "string"
+              },
+              "by": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              }
+            }
+          },
+          "review": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "by",
+              "date"
+            ],
+            "properties": {
+              "status": {
+                "enum": [
+                  "unreviewed",
+                  "reviewed",
+                  "sourced",
+                  "rejected"
+                ]
+              },
+              "by": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "date": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date"
+              }
+            }
+          }
+        }
+      },
+      "Metadata": {
+        "type": "object",
+        "required": [
+          "apiVersion",
+          "datasetVersion",
+          "schemaVersion",
+          "audioVersion",
+          "audioBaseUrl",
+          "rightsRegistryVersion"
+        ],
+        "properties": {
+          "apiVersion": {
+            "type": "string"
+          },
+          "datasetVersion": {
+            "type": "string"
+          },
+          "schemaVersion": {
+            "type": "string"
+          },
+          "audioVersion": {
+            "type": "string"
+          },
+          "audioBaseUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "rightsRegistryVersion": {
+            "type": "string"
+          }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "required": [
+          "limit",
+          "returned",
+          "total",
+          "nextCursor"
+        ],
+        "properties": {
+          "limit": {
+            "type": "integer"
+          },
+          "returned": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          },
+          "nextCursor": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "EntryPage": {
+        "type": "object",
+        "required": [
+          "data",
+          "meta",
+          "pagination"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicEntry"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Metadata"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        }
+      },
+      "Health": {
+        "type": "object",
+        "required": [
+          "status",
+          "environment",
+          "apiVersion"
+        ],
+        "properties": {
+          "status": {
+            "const": "ok"
+          },
+          "environment": {
+            "type": "string"
+          },
+          "apiVersion": {
+            "type": "string"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message",
+              "status"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "status": {
+                "type": "integer"
+              },
+              "details": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Invalid query or cursor",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Requested entry, collection or version does not exist",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "RateLimited": {
+        "description": "Request limit exceeded",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        },
+        "headers": {
+          "Retry-After": {
+            "schema": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "Unavailable": {
+        "description": "Release data is temporarily unavailable",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  }
+}
