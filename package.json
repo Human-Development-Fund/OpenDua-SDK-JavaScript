@@ -32,6 +32,14 @@
   "publishConfig": {"access": "public", "provenance": true},
   "keywords": ["dua", "islam", "supplication", "typescript", "sdk"],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/developerjamiu/OpenDua-SDK-JavaScript.git"
+  },
+  "bugs": {
+    "url": "https://github.com/developerjamiu/OpenDua-SDK-JavaScript/issues"
+  },
+  "homepage": "https://opendua.org/developers",
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
     "openapi-typescript": "7.13.0",
