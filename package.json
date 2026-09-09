@@ -34,10 +34,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/developerjamiu/OpenDua-SDK-JavaScript.git"
+    "url": "git+https://github.com/Human-Development-Fund/OpenDua-SDK-JavaScript.git"
   },
   "bugs": {
-    "url": "https://github.com/developerjamiu/OpenDua-SDK-JavaScript/issues"
+    "url": "https://github.com/Human-Development-Fund/OpenDua-SDK-JavaScript/issues"
   },
   "homepage": "https://opendua.org/developers",
   "devDependencies": {
