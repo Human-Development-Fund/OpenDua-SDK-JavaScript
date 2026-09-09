@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "OpenDua API",
-    "version": "1.0.0",
-    "description": "Read-only access to the versioned OpenDua corpus. Staging is a public developer preview; content is source-traceable but not yet scholar-reviewed.",
+    "version": "2.0.0",
+    "description": "Read-only access to versioned OpenDua data. Staging names its sources but is not scholar-reviewed.",
     "license": {
       "name": "CC BY 4.0 applies to OpenDua editorial material and dataset structure only",
       "url": "https://creativecommons.org/licenses/by/4.0/"
@@ -15,10 +15,41 @@
       "description": "Public staging preview"
     }
   ],
+  "externalDocs": {
+    "description": "Interactive API documentation",
+    "url": "https://api.staging.opendua.org/docs"
+  },
+  "security": [],
+  "tags": [
+    {
+      "name": "System",
+      "description": "Service and release information."
+    },
+    {
+      "name": "Entries",
+      "description": "Supplications, Quran passages, instructions and reports."
+    },
+    {
+      "name": "Collections",
+      "description": "Entries grouped by chapter."
+    },
+    {
+      "name": "Search",
+      "description": "Text search across published fields."
+    },
+    {
+      "name": "Rights",
+      "description": "Rights statements and profiles."
+    }
+  ],
   "paths": {
     "/health": {
       "get": {
-        "summary": "API health",
+        "operationId": "getHealth",
+        "summary": "Check API health",
+        "tags": [
+          "System"
+        ],
         "parameters": [],
         "responses": {
           "200": {
@@ -30,33 +61,17 @@
                 }
               }
             }
-          },
-          "304": {
-            "description": "The current ETag matches; no body is returned"
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "429": {
-            "$ref": "#/components/responses/RateLimited"
-          },
-          "503": {
-            "$ref": "#/components/responses/Unavailable"
-          }
-        }
-      },
-      "head": {
-        "summary": "API health headers",
-        "responses": {
-          "200": {
-            "description": "Bodyless health response"
           }
         }
       }
     },
-    "/v1": {
+    "/v2": {
       "get": {
-        "summary": "API and current release metadata",
+        "operationId": "getApiInfo",
+        "summary": "Get API and current release information",
+        "tags": [
+          "System"
+        ],
         "parameters": [
           {
             "name": "version",
@@ -66,7 +81,7 @@
             "schema": {
               "type": "string",
               "pattern": "^\\d+\\.\\d+\\.\\d+$",
-              "example": "0.0.2"
+              "example": "0.0.3"
             }
           }
         ],
@@ -76,7 +91,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/ApiInfoResponse"
                 }
               }
             }
@@ -87,6 +102,12 @@
           "400": {
             "$ref": "#/components/responses/BadRequest"
           },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/IncompatibleVersion"
+          },
           "429": {
             "$ref": "#/components/responses/RateLimited"
           },
@@ -96,9 +117,13 @@
         }
       }
     },
-    "/v1/duas": {
+    "/v2/duas": {
       "get": {
+        "operationId": "listDuas",
         "summary": "List entries",
+        "tags": [
+          "Entries"
+        ],
         "parameters": [
           {
             "name": "version",
@@ -108,7 +133,7 @@
             "schema": {
               "type": "string",
               "pattern": "^\\d+\\.\\d+\\.\\d+$",
-              "example": "0.0.2"
+              "example": "0.0.3"
             }
           },
           {
@@ -150,6 +175,12 @@
           "400": {
             "$ref": "#/components/responses/BadRequest"
           },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/IncompatibleVersion"
+          },
           "429": {
             "$ref": "#/components/responses/RateLimited"
           },
@@ -159,9 +190,13 @@
         }
       }
     },
-    "/v1/duas/{slug}": {
+    "/v2/duas/{slug}": {
       "get": {
+        "operationId": "getDua",
         "summary": "Get one entry by slug or stable ID",
+        "tags": [
+          "Entries"
+        ],
         "parameters": [
           {
             "name": "slug",
@@ -180,7 +215,7 @@
             "schema": {
               "type": "string",
               "pattern": "^\\d+\\.\\d+\\.\\d+$",
-              "example": "0.0.2"
+              "example": "0.0.3"
             }
           }
         ],
@@ -190,7 +225,475 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PublicEntry"
+                  "$ref": "#/components/schemas/EntryResponse"
+                },
+                "examples": {
+                  "simple": {
+                    "summary": "One recitation and one recording",
+                    "value": {
+                      "data": {
+                        "id": "OD-001",
+                        "slug": "when-you-wake-up-1",
+                        "title": "Supplications for when you wake up (1 of 4)",
+                        "form": "dua",
+                        "source": {
+                          "workId": "hisn-al-muslim",
+                          "workName": "Hisn al-Muslim",
+                          "entryNumber": "1",
+                          "citation": "Hisn al-Muslim 1"
+                        },
+                        "collections": [
+                          {
+                            "id": "when-you-wake-up",
+                            "name": "Supplications for when you wake up",
+                            "chapterNumber": 1,
+                            "entryPosition": 1,
+                            "entryTotal": 4
+                          }
+                        ],
+                        "blocks": [
+                          {
+                            "id": "recitation-1",
+                            "type": "recitation",
+                            "label": null,
+                            "arabic": "الْحَمْدُ للَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا، وَإِلَيْهِ النُّشُورُ",
+                            "arabicScript": "imlaei",
+                            "transliteration": "Al-ḥamdu li-llāhi alladhī aḥyānā baʿda mā amātanā, wa ilayhi an-nushūr",
+                            "transliterationSource": "open-dua",
+                            "english": "All praise is for Allah who gave us life after having taken it from us and unto Him is the resurrection.",
+                            "englishSource": "open-dua",
+                            "repetition": {
+                              "count": 1,
+                              "instruction": null
+                            },
+                            "annotations": []
+                          }
+                        ],
+                        "recordings": [
+                          {
+                            "id": "recording-1",
+                            "objectKey": "hisn/v0.0.2/OD-001.mp3",
+                            "durationSeconds": 16,
+                            "sampleRateHz": 24000,
+                            "reciter": "Muhammad Jumah",
+                            "covers": [
+                              "recitation-1"
+                            ]
+                          }
+                        ],
+                        "references": [
+                          {
+                            "id": "reference-1",
+                            "type": "source-note",
+                            "language": "ar",
+                            "citation": "البخاري مع الفتح، 11/ 113، برقم 6314، ومسلم، 4/ 2083، برقم 2711."
+                          }
+                        ],
+                        "hadithGrades": [],
+                        "gradingNote": "Reference as printed in Hisn al-Muslim; grading pending review",
+                        "tags": [
+                          "hisn-al-muslim",
+                          "sleep-and-waking"
+                        ],
+                        "reviews": {
+                          "source": {
+                            "status": "in-progress",
+                            "reviewer": null,
+                            "method": null,
+                            "date": null
+                          },
+                          "translation": {
+                            "status": "in-progress",
+                            "reviewer": null,
+                            "method": null,
+                            "date": null
+                          },
+                          "scholar": {
+                            "status": "not-started",
+                            "reviewer": null,
+                            "method": null,
+                            "date": null
+                          },
+                          "audio": {
+                            "status": "in-progress",
+                            "reviewer": null,
+                            "method": null,
+                            "date": null
+                          }
+                        },
+                        "revision": 2,
+                        "rightsProfile": "hisn-open-dua-modern",
+                        "textHash": "sha256:e2e5b2cd559c7eb9310fd306772e5325ecbd3a03d97ac071254bc1ff5dc5fdf7",
+                        "mediaHash": "sha256:eb422eb472879778b644d77bb93d2c2ff47ba0373b3bed7d604108c0e196604b",
+                        "recordHash": "sha256:49bc7e94874bb50c12cde6295771b00e8e0ff692acf8155c63dd4ddd2915ecdb"
+                      },
+                      "meta": {
+                        "apiVersion": "2.0.0",
+                        "datasetVersion": "0.0.3",
+                        "schemaVersion": "2.0.0",
+                        "audioVersion": "0.0.2",
+                        "audioBaseUrl": "https://audio.staging.opendua.org",
+                        "rightsRegistryVersion": "1.0.0"
+                      }
+                    }
+                  },
+                  "instruction": {
+                    "summary": "An action rather than words to recite",
+                    "value": {
+                      "data": {
+                        "id": "OD-024",
+                        "slug": "hearing-the-athan-call-to-prayer-3",
+                        "title": "What to say upon hearing the Athan (call to prayer) (3 of 5)",
+                        "form": "instruction",
+                        "source": {
+                          "workId": "hisn-al-muslim",
+                          "workName": "Hisn al-Muslim",
+                          "entryNumber": "24",
+                          "citation": "Hisn al-Muslim 24"
+                        },
+                        "collections": [
+                          {
+                            "id": "hearing-the-athan-call-to-prayer",
+                            "name": "What to say upon hearing the Athan (call to prayer)",
+                            "chapterNumber": 15,
+                            "entryPosition": 3,
+                            "entryTotal": 5
+                          }
+                        ],
+                        "blocks": [
+                          {
+                            "id": "context-1",
+                            "type": "instruction",
+                            "arabic": "يُصَلِّي عَلَى النَّبِيِّ صلى الله عليه وسلم بَعْدَ فَرَاغِهِ مِنْ إِجَابَةِ الْمُؤَذِّنِ",
+                            "transliteration": null,
+                            "english": "‘One should then send prayers on the Prophet sal-Allaahu'alayhe wa sallam after answering the call of the mu. adhdhin’.",
+                            "englishSource": "open-dua",
+                            "annotations": []
+                          }
+                        ],
+                        "recordings": [],
+                        "references": [
+                          {
+                            "id": "reference-1",
+                            "type": "source-note",
+                            "language": "ar",
+                            "citation": "مسلم، 1/ 288، برقم 384."
+                          }
+                        ],
+                        "hadithGrades": [],
+                        "gradingNote": "Reference as printed in Hisn al-Muslim; grading pending review",
+                        "tags": [
+                          "hisn-al-muslim",
+                          "instruction",
+                          "prayer-and-the-masjid"
+                        ],
+                        "reviews": {
+                          "source": {
+                            "status": "in-progress",
+                            "reviewer": null,
+                            "method": null,
+                            "date": null
+                          },
+                          "translation": {
+                            "status": "in-progress",
+                            "reviewer": null,
+                            "method": null,
+                            "date": null
+                          },
+                          "scholar": {
+                            "status": "not-started",
+                            "reviewer": null,
+                            "method": null,
+                            "date": null
+                          },
+                          "audio": {
+                            "status": "not-applicable",
+                            "reviewer": null,
+                            "method": null,
+                            "date": null
+                          }
+                        },
+                        "revision": 2,
+                        "rightsProfile": "hisn-open-dua-modern",
+                        "textHash": "sha256:2602a8b379b7de30ef8d57552ea01e452363a588de888fc22f559408b3e6e691",
+                        "mediaHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+                        "recordHash": "sha256:5650d0215d57e20ba3b3da077ad6b091d0cd622b3546a17e9c041673277debb8"
+                      },
+                      "meta": {
+                        "apiVersion": "2.0.0",
+                        "datasetVersion": "0.0.3",
+                        "schemaVersion": "2.0.0",
+                        "audioVersion": "0.0.2",
+                        "audioBaseUrl": "https://audio.staging.opendua.org",
+                        "rightsRegistryVersion": "1.0.0"
+                      }
+                    }
+                  },
+                  "report": {
+                    "summary": "A report preserved for its guidance",
+                    "value": {
+                      "data": {
+                        "id": "OD-149",
+                        "slug": "reward-for-visiting-the-sick",
+                        "title": "The reward for visiting the sick",
+                        "form": "report",
+                        "source": {
+                          "workId": "hisn-al-muslim",
+                          "workName": "Hisn al-Muslim",
+                          "entryNumber": "149",
+                          "citation": "Hisn al-Muslim 149"
+                        },
+                        "collections": [
+                          {
+                            "id": "reward-for-visiting-the-sick",
+                            "name": "The reward for visiting the sick",
+                            "chapterNumber": 50,
+                            "entryPosition": 1,
+                            "entryTotal": 1
+                          }
+                        ],
+                        "blocks": [
+                          {
+                            "id": "context-1",
+                            "type": "narration",
+                            "arabic": "قَالَ النَّبِيُّ صلى الله عليه وسلم:",
+                            "transliteration": null,
+                            "english": "Ali Ibn Abee Talib related that he heard the Messenger of Allah say:",
+                            "englishSource": "open-dua",
+                            "annotations": []
+                          },
+                          {
+                            "id": "context-2",
+                            "type": "narration",
+                            "arabic": "إِذَا عَادَ الرَّجُلُ أَخَاهُ الْمُسْلِمَ مَشَى فِي خِرَافَةِ الْجَنَّةِ حَتَّى يَجْلِسَ، فَإِذَا جَلَسَ غَمَرَتْهُ الرَّحْمَةُ، فَإِنْ كَانَ غُدْوَةً صَلَّى عَلَيْهِ سَبْعُونَ أَلْفَ مَلَكٍ حَتَّى يُمْسِيَ، وَإِنْ كَانَ مَسَاءً صَلَّى عَلَيْهِ سَبْعُونَ أَلْفَ مَلَكٍ حَتَّى يُصْبِحَ",
+                            "transliteration": null,
+                            "english": "‘If a man calls on his sick Muslim brother, it is as if he walks reaping the fruits of Paradise until he sits, and when he sits he is showered in mercy, and if this was in the morning, seventy thousand angles send prayers upon him until the evening, and if this was in the evening, seventy thousand angles send prayers upon him until the morning.",
+                            "englishSource": "open-dua",
+                            "annotations": []
+                          }
+                        ],
+                        "recordings": [],
+                        "references": [
+                          {
+                            "id": "reference-1",
+                            "type": "source-note",
+                            "language": "ar",
+                            "citation": "رواه الترمذي، برقم 969، وابن ماجه، برقم 1442، وأحمد، برقم 975، وانظر: صحيح ابن ماجه، 1/244 وصحيح الترمذي، 1/286، وصححه أيضاً أحمد شاكر."
+                          }
+                        ],
+                        "hadithGrades": [],
+                        "gradingNote": "Reference as printed in Hisn al-Muslim; grading pending review",
+                        "tags": [
+                          "hisn-al-muslim",
+                          "report",
+                          "illness-and-healing"
+                        ],
+                        "reviews": {
+                          "source": {
+                            "status": "in-progress",
+                            "reviewer": null,
+                            "method": null,
+                            "date": null
+                          },
+                          "translation": {
+                            "status": "in-progress",
+                            "reviewer": null,
+                            "method": null,
+                            "date": null
+                          },
+                          "scholar": {
+                            "status": "not-started",
+                            "reviewer": null,
+                            "method": null,
+                            "date": null
+                          },
+                          "audio": {
+                            "status": "not-applicable",
+                            "reviewer": null,
+                            "method": null,
+                            "date": null
+                          }
+                        },
+                        "revision": 2,
+                        "rightsProfile": "hisn-open-dua-modern",
+                        "textHash": "sha256:304fa95e6441b08b0159b9ebcf75e075795b53432eb87b08089880b8ef91f855",
+                        "mediaHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+                        "recordHash": "sha256:658c6865be59efc7d72d3fc9c9152854428e9de3d2f3b71669fc019917c82767"
+                      },
+                      "meta": {
+                        "apiVersion": "2.0.0",
+                        "datasetVersion": "0.0.3",
+                        "schemaVersion": "2.0.0",
+                        "audioVersion": "0.0.2",
+                        "audioBaseUrl": "https://audio.staging.opendua.org",
+                        "rightsRegistryVersion": "1.0.0"
+                      }
+                    }
+                  },
+                  "multipart": {
+                    "summary": "Several recitation blocks and recordings",
+                    "value": {
+                      "data": {
+                        "id": "OD-031",
+                        "slug": "beginning-of-the-prayer-5",
+                        "title": "Invocations for the beginning of the prayer (5 of 6)",
+                        "form": "dua",
+                        "source": {
+                          "workId": "hisn-al-muslim",
+                          "workName": "Hisn al-Muslim",
+                          "entryNumber": "31",
+                          "citation": "Hisn al-Muslim 31"
+                        },
+                        "collections": [
+                          {
+                            "id": "beginning-of-the-prayer",
+                            "name": "Invocations for the beginning of the prayer",
+                            "chapterNumber": 16,
+                            "entryPosition": 5,
+                            "entryTotal": 6
+                          }
+                        ],
+                        "blocks": [
+                          {
+                            "id": "recitation-1",
+                            "type": "recitation",
+                            "label": null,
+                            "arabic": "اللَّهُ أَكْبَرُ كَبِيراً",
+                            "arabicScript": "imlaei",
+                            "transliteration": "Allāhu akbaru ka-bi-yrā",
+                            "transliterationSource": "open-dua",
+                            "english": "Allah is Most Great.",
+                            "englishSource": "open-dua",
+                            "repetition": {
+                              "count": 3,
+                              "instruction": null
+                            },
+                            "annotations": []
+                          },
+                          {
+                            "id": "recitation-2",
+                            "type": "recitation",
+                            "label": null,
+                            "arabic": "وَالْحَمْدُ لِلَّهِ كَثِيراً",
+                            "arabicScript": "imlaei",
+                            "transliteration": "Wa-l-ḥamdu li-llāhi ka-thīrā",
+                            "transliterationSource": "open-dua",
+                            "english": "Much praise is for Allah.",
+                            "englishSource": "open-dua",
+                            "repetition": {
+                              "count": 3,
+                              "instruction": null
+                            },
+                            "annotations": []
+                          },
+                          {
+                            "id": "recitation-3",
+                            "type": "recitation",
+                            "label": null,
+                            "arabic": "وَسُبْحَانَ اللَّهِ بُكْرَةً وَأَصِيلاً",
+                            "arabicScript": "imlaei",
+                            "transliteration": "Wa subḥāna llāhi bukratan wa aṣīlā",
+                            "transliterationSource": "open-dua",
+                            "english": "I declare the perfection of Allah in the early morning and in the late afternoon.",
+                            "englishSource": "open-dua",
+                            "repetition": {
+                              "count": 3,
+                              "instruction": {
+                                "arabic": "ثَلاثاً",
+                                "english": null,
+                                "englishSource": null
+                              }
+                            },
+                            "annotations": []
+                          },
+                          {
+                            "id": "recitation-4",
+                            "type": "recitation",
+                            "label": null,
+                            "arabic": "أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ: مِنْ نَفْخِهِ، وَنَفْثِهِ، وَهَمْزِهِ",
+                            "arabicScript": "imlaei",
+                            "transliteration": "Aʿūdhu bi-llāhi mina ash-shayṭāni: min nafkhihi, wa nafthihi, wa hamzih",
+                            "transliterationSource": "open-dua",
+                            "english": "I take refuge with Allah from the devil, from his pride, his poetry and his madness.",
+                            "englishSource": "open-dua",
+                            "repetition": {
+                              "count": 1,
+                              "instruction": null
+                            },
+                            "annotations": []
+                          }
+                        ],
+                        "recordings": [
+                          {
+                            "id": "recording-1",
+                            "objectKey": "hisn/v0.0.2/OD-031.mp3",
+                            "durationSeconds": 47,
+                            "sampleRateHz": 24000,
+                            "reciter": "Muhammad Jumah",
+                            "covers": [
+                              "recitation-1",
+                              "recitation-2",
+                              "recitation-3",
+                              "recitation-4"
+                            ]
+                          }
+                        ],
+                        "references": [
+                          {
+                            "id": "reference-1",
+                            "type": "source-note",
+                            "language": "ar",
+                            "citation": "أخرجه أبو داود، 1/ 203، برقم 764، وابن ماجه، 1/ 265، برقم، 807، وأحمد، 4/ 85، برقم 16739، وقال شعيب الأرناؤوط في تحقيقه لمسند: ((حسن لغيره))، وقال عبد القادر الأرناؤوط في تخريجه للكلم الطيب لابن تيمية، برقم 78: ((وهو حديث صحيح بشواهده))، وذكره الألباني في صحيح الكلم الطيب، برقم 62، وأخرجه مسلم عن ابن عمر ^ بنحوه، وفيه قصة، 1/ 420، برقم 601."
+                          }
+                        ],
+                        "hadithGrades": [],
+                        "gradingNote": "Reference as printed in Hisn al-Muslim; grading pending review",
+                        "tags": [
+                          "hisn-al-muslim",
+                          "prayer-and-the-masjid"
+                        ],
+                        "reviews": {
+                          "source": {
+                            "status": "in-progress",
+                            "reviewer": null,
+                            "method": null,
+                            "date": null
+                          },
+                          "translation": {
+                            "status": "in-progress",
+                            "reviewer": null,
+                            "method": null,
+                            "date": null
+                          },
+                          "scholar": {
+                            "status": "not-started",
+                            "reviewer": null,
+                            "method": null,
+                            "date": null
+                          },
+                          "audio": {
+                            "status": "in-progress",
+                            "reviewer": null,
+                            "method": null,
+                            "date": null
+                          }
+                        },
+                        "revision": 2,
+                        "rightsProfile": "hisn-open-dua-modern",
+                        "textHash": "sha256:48e9b4106bf4c2b96bcf3b1ff59b5a0321bce906210bbe34f973bb79a72d3347",
+                        "mediaHash": "sha256:414881777f6b5e934a5dc35a4b4d101efdebdc2c78682e23639ba1e5e297df79",
+                        "recordHash": "sha256:e6d895eae424a7ba89ff2085b32c9ada3dad523a0f39e9ad1ad70ea87576b869"
+                      },
+                      "meta": {
+                        "apiVersion": "2.0.0",
+                        "datasetVersion": "0.0.3",
+                        "schemaVersion": "2.0.0",
+                        "audioVersion": "0.0.2",
+                        "audioBaseUrl": "https://audio.staging.opendua.org",
+                        "rightsRegistryVersion": "1.0.0"
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -201,21 +704,28 @@
           "400": {
             "$ref": "#/components/responses/BadRequest"
           },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/IncompatibleVersion"
+          },
           "429": {
             "$ref": "#/components/responses/RateLimited"
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
           }
         }
       }
     },
-    "/v1/collections/{slug}": {
+    "/v2/collections/{slug}": {
       "get": {
+        "operationId": "listCollection",
         "summary": "List one chapter collection",
+        "tags": [
+          "Collections"
+        ],
         "parameters": [
           {
             "name": "slug",
@@ -233,7 +743,7 @@
             "schema": {
               "type": "string",
               "pattern": "^\\d+\\.\\d+\\.\\d+$",
-              "example": "0.0.2"
+              "example": "0.0.3"
             }
           },
           {
@@ -264,7 +774,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EntryPage"
+                  "$ref": "#/components/schemas/CollectionPage"
                 }
               }
             }
@@ -275,21 +785,109 @@
           "400": {
             "$ref": "#/components/responses/BadRequest"
           },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/IncompatibleVersion"
+          },
           "429": {
             "$ref": "#/components/responses/RateLimited"
           },
           "503": {
             "$ref": "#/components/responses/Unavailable"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
           }
         }
       }
     },
-    "/v1/search": {
+    "/v2/tags/{slug}": {
       "get": {
-        "summary": "Search Arabic, transliteration, English, sources, categories and tags",
+        "operationId": "listTag",
+        "summary": "List entries carrying one tag",
+        "tags": [
+          "Collections"
+        ],
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "description": "Immutable dataset version. Omit to use the current release.",
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+$",
+              "example": "0.0.3"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Page size.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "description": "Opaque cursor returned by the preceding page.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TagPage"
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "The current ETag matches; no body is returned"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/IncompatibleVersion"
+          },
+          "429": {
+            "$ref": "#/components/responses/RateLimited"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/v2/search": {
+      "get": {
+        "operationId": "searchDuas",
+        "summary": "Search published text, sources, collections and tags",
+        "tags": [
+          "Search"
+        ],
         "parameters": [
           {
             "name": "q",
@@ -310,7 +908,7 @@
             "schema": {
               "type": "string",
               "pattern": "^\\d+\\.\\d+\\.\\d+$",
-              "example": "0.0.2"
+              "example": "0.0.3"
             }
           },
           {
@@ -341,7 +939,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EntryPage"
+                  "$ref": "#/components/schemas/SearchPage"
                 }
               }
             }
@@ -351,6 +949,12 @@
           },
           "400": {
             "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/IncompatibleVersion"
           },
           "429": {
             "$ref": "#/components/responses/RateLimited"
@@ -361,9 +965,13 @@
         }
       }
     },
-    "/v1/rights": {
+    "/v2/rights": {
       "get": {
-        "summary": "Get the field-group rights registry",
+        "operationId": "getRights",
+        "summary": "Get the rights registry",
+        "tags": [
+          "Rights"
+        ],
         "parameters": [
           {
             "name": "version",
@@ -373,7 +981,7 @@
             "schema": {
               "type": "string",
               "pattern": "^\\d+\\.\\d+\\.\\d+$",
-              "example": "0.0.2"
+              "example": "0.0.3"
             }
           }
         ],
@@ -383,7 +991,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "$ref": "#/components/schemas/RightsRegistry"
                 }
               }
             }
@@ -393,6 +1001,12 @@
           },
           "400": {
             "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/IncompatibleVersion"
           },
           "429": {
             "$ref": "#/components/responses/RateLimited"
@@ -406,59 +1020,791 @@
   },
   "components": {
     "schemas": {
+      "Hash": {
+        "type": "string",
+        "pattern": "^sha256:[a-f0-9]{64}$"
+      },
+      "SourceIdentity": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "workId",
+          "workName",
+          "entryNumber",
+          "citation"
+        ],
+        "properties": {
+          "workId": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "description": "Stable source-work identifier."
+          },
+          "workName": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Human-readable source-work name."
+          },
+          "entryNumber": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$",
+            "description": "Entry locator within the source work."
+          },
+          "citation": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Citation ready for display."
+          }
+        }
+      },
+      "CollectionMembership": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "chapterNumber",
+          "entryPosition",
+          "entryTotal"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "description": "Stable collection identifier."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Reader-facing collection name."
+          },
+          "chapterNumber": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1,
+            "description": "Chapter number in the source work, or null for an unnumbered collection."
+          },
+          "entryPosition": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "This entry's one-based position in the collection."
+          },
+          "entryTotal": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Total entries in the collection for this release."
+          }
+        }
+      },
+      "ContentBlock": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ContextBlock"
+          },
+          {
+            "$ref": "#/components/schemas/RecitationBlock"
+          }
+        ]
+      },
+      "ContextBlock": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "type",
+          "arabic",
+          "transliteration",
+          "english",
+          "englishSource",
+          "annotations"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^context-[1-9][0-9]*$",
+            "description": "Stable position-based ID within this entry revision."
+          },
+          "type": {
+            "enum": [
+              "instruction",
+              "narration",
+              "note"
+            ],
+            "description": "The role of this non-recited text."
+          },
+          "arabic": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "description": "Arabic wording, or null when the source gives none."
+          },
+          "transliteration": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "description": "Transliteration when relevant, otherwise null. Instructions normally use null."
+          },
+          "english": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "description": "English wording, or null when unavailable."
+          },
+          "englishSource": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "description": "Who prepared the English wording, or null when English is unavailable."
+          },
+          "annotations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Annotation"
+            },
+            "description": "Editorial wording identified within this context block."
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "english": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "english"
+              ]
+            },
+            "then": {
+              "properties": {
+                "englishSource": {
+                  "type": "null"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "englishSource": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "RecitationBlock": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "type",
+          "label",
+          "arabic",
+          "arabicScript",
+          "transliteration",
+          "transliterationSource",
+          "english",
+          "englishSource",
+          "repetition",
+          "annotations"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^recitation-[1-9][0-9]*$",
+            "description": "Stable position-based ID within this entry revision."
+          },
+          "type": {
+            "const": "recitation",
+            "description": "Marks words intended to be recited."
+          },
+          "label": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "description": "Variant or part name, or null when no label is needed."
+          },
+          "arabic": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Exact Arabic words to recite."
+          },
+          "arabicScript": {
+            "enum": [
+              "imlaei",
+              "uthmani"
+            ],
+            "description": "Arabic writing style used by this block."
+          },
+          "transliteration": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "description": "Latin-script reading aid, or null when unavailable."
+          },
+          "transliterationSource": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "description": "Who prepared the transliteration, or null when none is published."
+          },
+          "english": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "description": "English meaning, or null when unavailable."
+          },
+          "englishSource": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1,
+            "description": "Who prepared the English meaning, or null when none is published."
+          },
+          "repetition": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Repetition"
+              }
+            ],
+            "description": "Positive recitation count and optional wording, or null when no single count applies."
+          },
+          "annotations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Annotation"
+            },
+            "description": "Non-recited wording anchored to this block."
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "transliteration": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "transliteration"
+              ]
+            },
+            "then": {
+              "properties": {
+                "transliterationSource": {
+                  "type": "null"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "transliterationSource": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "english": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "english"
+              ]
+            },
+            "then": {
+              "properties": {
+                "englishSource": {
+                  "type": "null"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "englishSource": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Repetition": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "count",
+          "instruction"
+        ],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Number of times to recite this block."
+          },
+          "instruction": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RepetitionInstruction"
+              }
+            ],
+            "description": "Source wording that adds timing or alternatives to the number."
+          }
+        }
+      },
+      "RepetitionInstruction": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "arabic",
+          "english",
+          "englishSource"
+        ],
+        "properties": {
+          "arabic": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1
+          },
+          "english": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1
+          },
+          "englishSource": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "english": {
+                  "type": "null"
+                }
+              },
+              "required": [
+                "english"
+              ]
+            },
+            "then": {
+              "properties": {
+                "englishSource": {
+                  "type": "null"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "englishSource": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Annotation": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "language",
+          "text",
+          "source",
+          "anchor"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^annotation-[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "kind": {
+            "enum": [
+              "not-recited",
+              "editorial-note"
+            ],
+            "description": "Whether wording was removed from recitable text or identified within non-recited context."
+          },
+          "language": {
+            "enum": [
+              "arabic",
+              "transliteration",
+              "english"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source": {
+            "type": "string",
+            "minLength": 1
+          },
+          "anchor": {
+            "$ref": "#/components/schemas/AnnotationAnchor"
+          }
+        }
+      },
+      "AnnotationAnchor": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "blockId",
+          "codeUnitOffset"
+        ],
+        "properties": {
+          "blockId": {
+            "type": "string",
+            "pattern": "^(?:recitation|context)-[1-9][0-9]*$",
+            "description": "Content block to which the note belongs."
+          },
+          "codeUnitOffset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Position in the named language field, counted as UTF-16 code units. For removed non-recited wording, this is its insertion point."
+          }
+        }
+      },
+      "Recording": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "objectKey",
+          "durationSeconds",
+          "sampleRateHz",
+          "reciter",
+          "covers"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^recording-[1-9][0-9]*$"
+          },
+          "objectKey": {
+            "type": "string",
+            "pattern": "^[a-z0-9][A-Za-z0-9._/-]*$",
+            "description": "Immutable path under an audio origin. It is never an absolute URL."
+          },
+          "durationSeconds": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Rounded recording length in seconds."
+          },
+          "sampleRateHz": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Audio sample rate in hertz."
+          },
+          "reciter": {
+            "type": "string",
+            "minLength": 1
+          },
+          "covers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^recitation-[1-9][0-9]*$"
+            },
+            "minItems": 1,
+            "uniqueItems": true,
+            "description": "Recitation blocks heard in this recording, in playback order."
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "Reference": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "type",
+          "language",
+          "citation"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^reference-[1-9][0-9]*$"
+          },
+          "type": {
+            "enum": [
+              "source-note",
+              "hadith",
+              "quran",
+              "book",
+              "web"
+            ]
+          },
+          "language": {
+            "type": "string",
+            "pattern": "^[a-z]{2,3}(?:-[A-Z]{2})?$",
+            "description": "BCP 47 language tag for the citation text."
+          },
+          "citation": {
+            "type": "string",
+            "minLength": 1
+          },
+          "workId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "locator": {
+            "type": "string",
+            "minLength": 1
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "HadithGrade": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "grade",
+          "by"
+        ],
+        "properties": {
+          "grade": {
+            "type": "string",
+            "minLength": 1
+          },
+          "by": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "minItems": 1
+          }
+        }
+      },
+      "Reviews": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source",
+          "translation",
+          "scholar",
+          "audio"
+        ],
+        "properties": {
+          "source": {
+            "$ref": "#/components/schemas/Review"
+          },
+          "translation": {
+            "$ref": "#/components/schemas/Review"
+          },
+          "scholar": {
+            "$ref": "#/components/schemas/Review"
+          },
+          "audio": {
+            "$ref": "#/components/schemas/Review"
+          }
+        }
+      },
+      "Review": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status",
+          "reviewer",
+          "method",
+          "date"
+        ],
+        "properties": {
+          "status": {
+            "enum": [
+              "not-started",
+              "in-progress",
+              "completed",
+              "not-applicable"
+            ]
+          },
+          "reviewer": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1
+          },
+          "method": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "minLength": 1
+          },
+          "date": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "completed"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "properties": {
+                "reviewer": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "method": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "date": {
+                  "type": "string",
+                  "format": "date"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Statement": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "label",
+          "notice"
+        ],
+        "properties": {
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "notice": {
+            "type": "string",
+            "minLength": 1
+          },
+          "licence": {
+            "type": "string",
+            "minLength": 1
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "attribution": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "Profile": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string",
+          "minLength": 1
+        },
+        "minProperties": 1
+      },
       "PublicEntry": {
-        "title": "OpenDua public entry",
+        "title": "OpenDua public entry v2",
+        "description": "One source-traceable OpenDua entry. The ordered blocks array is the only authority for text and reading order. Recordings identify the recitation blocks they cover.",
         "type": "object",
         "additionalProperties": false,
         "required": [
           "id",
           "slug",
           "title",
-          "arabic",
           "form",
-          "rubric",
-          "closing",
-          "parts",
-          "asides",
-          "countRubric",
-          "note",
-          "noteArabic",
-          "arabicScript",
-          "incipit",
-          "transliteration",
-          "transliterationSource",
-          "translation",
-          "translationSource",
           "source",
-          "grading",
+          "collections",
+          "blocks",
+          "recordings",
+          "references",
+          "hadithGrades",
           "gradingNote",
-          "footnotes",
-          "virtues",
-          "repetition",
-          "categories",
           "tags",
-          "audio",
-          "review",
-          "contentVersion",
+          "reviews",
+          "revision",
           "rightsProfile",
-          "contentHash"
+          "textHash",
+          "mediaHash",
+          "recordHash"
         ],
         "properties": {
           "id": {
             "type": "string",
-            "pattern": "^OD-[0-9]{3}$"
+            "pattern": "^OD-[A-Za-z0-9][A-Za-z0-9._-]*$",
+            "description": "Stable OpenDua identifier. It is never reused and is not limited to three digits.",
+            "examples": [
+              "OD-001"
+            ]
           },
           "slug": {
             "type": "string",
-            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "description": "Stable URL-friendly name for the entry.",
+            "examples": [
+              "when-you-wake-up-1"
+            ]
           },
           "title": {
             "type": "string",
-            "minLength": 1
-          },
-          "arabic": {
-            "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "description": "Reader-facing English title."
           },
           "form": {
             "enum": [
@@ -466,445 +1812,134 @@
               "quran",
               "instruction",
               "report"
-            ]
-          },
-          "rubric": {
-            "$ref": "#/components/schemas/PublicEntry/$defs/nullableRubric"
-          },
-          "closing": {
-            "$ref": "#/components/schemas/PublicEntry/$defs/nullableRubric"
-          },
-          "parts": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PublicEntry/$defs/part"
-            }
-          },
-          "asides": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/PublicEntry/$defs/asides"
-              }
-            ]
-          },
-          "countRubric": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/PublicEntry/$defs/countRubric"
-              }
-            ]
-          },
-          "note": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "noteArabic": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "arabicScript": {
-            "enum": [
-              "imlaei",
-              "uthmani"
-            ]
-          },
-          "incipit": {
-            "type": "string"
-          },
-          "transliteration": {
-            "type": "string"
-          },
-          "transliterationSource": {
-            "type": "string"
-          },
-          "translation": {
-            "type": "string"
-          },
-          "translationSource": {
-            "type": "string"
+            ],
+            "description": "Whether the entry contains a supplication, Quran passage, action to perform, or hadith report."
           },
           "source": {
-            "type": "string"
+            "$ref": "#/components/schemas/SourceIdentity",
+            "description": "The primary work and numbered entry from which this record was prepared."
           },
-          "grading": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/PublicEntry/$defs/grading"
-                },
-                "minItems": 1
-              }
-            ]
+          "collections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CollectionMembership"
+            },
+            "minItems": 1,
+            "description": "Chapters or other browsing collections containing this entry. Positions are one-based."
+          },
+          "blocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContentBlock"
+            },
+            "minItems": 1,
+            "description": "Authoritative text in display order. Clients must not reconstruct text from titles or references."
+          },
+          "recordings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Recording"
+            },
+            "description": "Playable recordings in order. An empty list means that no recording is available or required."
+          },
+          "references": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Reference"
+            },
+            "description": "Additional source notes and citations, in source order."
+          },
+          "hadithGrades": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HadithGrade"
+            },
+            "description": "Published hadith assessments. An empty list means that no assessment is published."
           },
           "gradingNote": {
             "type": [
               "string",
               "null"
-            ]
-          },
-          "footnotes": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "virtues": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "text",
-                  "source"
-                ],
-                "properties": {
-                  "text": {
-                    "type": "string"
-                  },
-                  "source": {
-                    "type": "string"
-                  }
-                }
-              }
-            ]
-          },
-          "repetition": {
-            "type": "integer",
-            "minimum": 0
-          },
-          "categories": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "minItems": 1
+            ],
+            "description": "Why no settled hadith assessment is published, or null when no explanation is needed."
           },
           "tags": {
             "type": "array",
             "items": {
-              "type": "string"
-            }
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true,
+            "description": "Stable topic and source labels used for filtering."
           },
-          "audio": {
-            "$ref": "#/components/schemas/PublicEntry/$defs/audio"
+          "reviews": {
+            "$ref": "#/components/schemas/Reviews",
+            "description": "Named source, translation, scholar, and audio review states. Staging does not imply scholarly approval."
           },
-          "review": {
-            "$ref": "#/components/schemas/PublicEntry/$defs/review"
-          },
-          "contentVersion": {
+          "revision": {
             "type": "integer",
-            "minimum": 1
+            "minimum": 1,
+            "description": "Entry-level revision, increased when displayed or recited content changes."
           },
           "rightsProfile": {
             "type": "string",
-            "minLength": 1
+            "minLength": 1,
+            "description": "Identifier in the rights registry for this entry's text, metadata, and recordings."
           },
-          "contentHash": {
-            "type": "string",
-            "pattern": "^sha256:[a-f0-9]{64}$"
+          "textHash": {
+            "$ref": "#/components/schemas/Hash",
+            "description": "SHA-256 of canonical compact JSON for blocks only."
+          },
+          "mediaHash": {
+            "$ref": "#/components/schemas/Hash",
+            "description": "SHA-256 of canonical compact JSON for recordings only."
+          },
+          "recordHash": {
+            "$ref": "#/components/schemas/Hash",
+            "description": "SHA-256 of the complete canonical entry before textHash, mediaHash, and recordHash are added."
           }
         },
-        "$defs": {
-          "nullableRubric": {
-            "anyOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/PublicEntry/$defs/rubric"
-              }
-            ]
-          },
-          "rubric": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "kind",
-              "text",
-              "transliteration",
-              "translation",
-              "translationSource"
-            ],
+        "oneOf": [
+          {
             "properties": {
-              "kind": {
+              "form": {
+                "enum": [
+                  "dua",
+                  "quran"
+                ]
+              },
+              "blocks": {
+                "contains": {
+                  "$ref": "#/components/schemas/RecitationBlock"
+                }
+              }
+            }
+          },
+          {
+            "properties": {
+              "form": {
                 "enum": [
                   "instruction",
-                  "narration"
+                  "report"
                 ]
               },
-              "text": {
-                "type": "string"
-              },
-              "transliteration": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "translation": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "translationSource": {
-                "type": "string"
-              }
-            }
-          },
-          "audio": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "objectKey",
-              "durationSeconds",
-              "sampleRateHz",
-              "reciter"
-            ],
-            "properties": {
-              "objectKey": {
-                "type": "string"
-              },
-              "durationSeconds": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "sampleRateHz": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "reciter": {
-                "type": "string"
-              },
-              "note": {
-                "type": "string"
-              }
-            }
-          },
-          "part": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "arabic",
-              "transliteration",
-              "translation",
-              "repetition",
-              "count",
-              "rubric",
-              "audio"
-            ],
-            "properties": {
-              "label": {
-                "type": "string"
-              },
-              "arabic": {
-                "type": "string"
-              },
-              "transliteration": {
-                "type": "string"
-              },
-              "translation": {
-                "type": "string"
-              },
-              "repetition": {
-                "type": "integer",
-                "minimum": 0
-              },
-              "count": {
-                "anyOf": [
-                  {
-                    "type": "null"
-                  },
-                  {
-                    "$ref": "#/components/schemas/PublicEntry/$defs/partCount"
+              "blocks": {
+                "not": {
+                  "contains": {
+                    "$ref": "#/components/schemas/RecitationBlock"
                   }
-                ]
-              },
-              "rubric": {
-                "$ref": "#/components/schemas/PublicEntry/$defs/nullableRubric"
-              },
-              "audio": {
-                "$ref": "#/components/schemas/PublicEntry/$defs/audio"
-              }
-            }
-          },
-          "partCount": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "ar",
-              "en",
-              "enSource",
-              "placement"
-            ],
-            "properties": {
-              "ar": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "en": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "enSource": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "placement": {
-                "enum": [
-                  "before",
-                  "after"
-                ]
-              }
-            }
-          },
-          "aside": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "text",
-              "source"
-            ],
-            "properties": {
-              "text": {
-                "type": "string"
-              },
-              "source": {
-                "type": "string"
-              }
-            }
-          },
-          "asides": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "arabic",
-              "transliteration",
-              "translation"
-            ],
-            "properties": {
-              "arabic": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/PublicEntry/$defs/aside"
                 }
               },
-              "transliteration": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/PublicEntry/$defs/aside"
-                }
-              },
-              "translation": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/PublicEntry/$defs/aside"
-                }
-              }
-            }
-          },
-          "countRubric": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "ar",
-              "en",
-              "enSource"
-            ],
-            "properties": {
-              "ar": {
-                "type": "string"
-              },
-              "en": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "enSource": {
-                "type": "string"
-              }
-            }
-          },
-          "grading": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "grade",
-              "by"
-            ],
-            "properties": {
-              "grade": {
-                "type": "string"
-              },
-              "by": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                },
-                "minItems": 1
-              }
-            }
-          },
-          "review": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "status",
-              "by",
-              "date"
-            ],
-            "properties": {
-              "status": {
-                "enum": [
-                  "unreviewed",
-                  "reviewed",
-                  "sourced",
-                  "rejected"
-                ]
-              },
-              "by": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "date": {
-                "type": [
-                  "string",
-                  "null"
-                ],
-                "format": "date"
+              "recordings": {
+                "maxItems": 0
               }
             }
           }
-        }
+        ]
       },
       "Metadata": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "apiVersion",
           "datasetVersion",
@@ -915,20 +1950,25 @@
         ],
         "properties": {
           "apiVersion": {
-            "type": "string"
+            "type": "string",
+            "example": "2.0.0"
           },
           "datasetVersion": {
-            "type": "string"
+            "type": "string",
+            "example": "0.0.3"
           },
           "schemaVersion": {
-            "type": "string"
+            "type": "string",
+            "example": "2.0.0"
           },
           "audioVersion": {
-            "type": "string"
+            "type": "string",
+            "example": "0.0.2"
           },
           "audioBaseUrl": {
             "type": "string",
-            "format": "uri"
+            "format": "uri",
+            "description": "Prefix for recording objectKey values."
           },
           "rightsRegistryVersion": {
             "type": "string"
@@ -937,6 +1977,7 @@
       },
       "Pagination": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "limit",
           "returned",
@@ -945,13 +1986,17 @@
         ],
         "properties": {
           "limit": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
           },
           "returned": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0
           },
           "total": {
-            "type": "integer"
+            "type": "integer",
+            "minimum": 0
           },
           "nextCursor": {
             "type": [
@@ -963,6 +2008,7 @@
       },
       "EntryPage": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "data",
           "meta",
@@ -983,8 +2029,196 @@
           }
         }
       },
+      "CollectionPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "meta",
+          "pagination",
+          "collection"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicEntry"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Metadata"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          },
+          "collection": {
+            "type": "string"
+          }
+        }
+      },
+      "TagPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "meta",
+          "pagination",
+          "tag"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicEntry"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Metadata"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          },
+          "tag": {
+            "type": "string"
+          }
+        }
+      },
+      "SearchPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "meta",
+          "pagination",
+          "query"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicEntry"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Metadata"
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          },
+          "query": {
+            "type": "string"
+          }
+        }
+      },
+      "EntryResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PublicEntry"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Metadata"
+          }
+        }
+      },
+      "ApiInfo": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "entryCount",
+          "released",
+          "endpoints"
+        ],
+        "properties": {
+          "name": {
+            "const": "OpenDua API"
+          },
+          "entryCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "released": {
+            "type": "string",
+            "format": "date"
+          },
+          "endpoints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ApiInfoResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/ApiInfo"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Metadata"
+          }
+        }
+      },
+      "RightsRegistry": {
+        "title": "OpenDua rights registry v2",
+        "description": "Reusable rights statements and the entry profiles that select them.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "version",
+          "statements",
+          "profiles",
+          "defaults"
+        ],
+        "properties": {
+          "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$"
+          },
+          "statements": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Statement"
+            },
+            "minProperties": 1
+          },
+          "profiles": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Profile"
+            },
+            "minProperties": 1
+          },
+          "defaults": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "entryProfile"
+            ],
+            "properties": {
+              "entryProfile": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      },
       "Health": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "status",
           "environment",
@@ -1002,14 +2236,20 @@
           }
         }
       },
+      "ErrorDetail": {
+        "type": "object",
+        "additionalProperties": true
+      },
       "Error": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "error"
         ],
         "properties": {
           "error": {
             "type": "object",
+            "additionalProperties": false,
             "required": [
               "code",
               "message",
@@ -1026,7 +2266,7 @@
                 "type": "integer"
               },
               "details": {
-                "type": "object"
+                "$ref": "#/components/schemas/ErrorDetail"
               }
             }
           }
@@ -1046,6 +2286,16 @@
       },
       "NotFound": {
         "description": "Requested entry, collection or version does not exist",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "IncompatibleVersion": {
+        "description": "The requested data release belongs to another API schema version",
         "content": {
           "application/json": {
             "schema": {

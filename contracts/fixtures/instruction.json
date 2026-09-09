@@ -1,0 +1,79 @@
+{
+  "id": "OD-024",
+  "slug": "hearing-the-athan-call-to-prayer-3",
+  "title": "What to say upon hearing the Athan (call to prayer) (3 of 5)",
+  "form": "instruction",
+  "source": {
+    "workId": "hisn-al-muslim",
+    "workName": "Hisn al-Muslim",
+    "entryNumber": "24",
+    "citation": "Hisn al-Muslim 24"
+  },
+  "collections": [
+    {
+      "id": "hearing-the-athan-call-to-prayer",
+      "name": "What to say upon hearing the Athan (call to prayer)",
+      "chapterNumber": 15,
+      "entryPosition": 3,
+      "entryTotal": 5
+    }
+  ],
+  "blocks": [
+    {
+      "id": "context-1",
+      "type": "instruction",
+      "arabic": "يُصَلِّي عَلَى النَّبِيِّ صلى الله عليه وسلم بَعْدَ فَرَاغِهِ مِنْ إِجَابَةِ الْمُؤَذِّنِ",
+      "transliteration": null,
+      "english": "‘One should then send prayers on the Prophet sal-Allaahu'alayhe wa sallam after answering the call of the mu. adhdhin’.",
+      "englishSource": "open-dua",
+      "annotations": []
+    }
+  ],
+  "recordings": [],
+  "references": [
+    {
+      "id": "reference-1",
+      "type": "source-note",
+      "language": "ar",
+      "citation": "مسلم، 1/ 288، برقم 384."
+    }
+  ],
+  "hadithGrades": [],
+  "gradingNote": "Reference as printed in Hisn al-Muslim; grading pending review",
+  "tags": [
+    "hisn-al-muslim",
+    "instruction",
+    "prayer-and-the-masjid"
+  ],
+  "reviews": {
+    "source": {
+      "status": "in-progress",
+      "reviewer": null,
+      "method": null,
+      "date": null
+    },
+    "translation": {
+      "status": "in-progress",
+      "reviewer": null,
+      "method": null,
+      "date": null
+    },
+    "scholar": {
+      "status": "not-started",
+      "reviewer": null,
+      "method": null,
+      "date": null
+    },
+    "audio": {
+      "status": "not-applicable",
+      "reviewer": null,
+      "method": null,
+      "date": null
+    }
+  },
+  "revision": 2,
+  "rightsProfile": "hisn-open-dua-modern",
+  "textHash": "sha256:2602a8b379b7de30ef8d57552ea01e452363a588de888fc22f559408b3e6e691",
+  "mediaHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "recordHash": "sha256:5650d0215d57e20ba3b3da077ad6b091d0cd622b3546a17e9c041673277debb8"
+}

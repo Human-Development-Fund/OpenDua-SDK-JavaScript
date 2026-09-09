@@ -11,13 +11,20 @@ npm install @opendua/sdk@next
 import { OpenDuaClient } from "@opendua/sdk";
 
 const client = new OpenDuaClient();
-const dua = await client.getDua("when-you-wake-up-1");
-console.log(dua.arabic, dua.translation);
+const response = await client.getDua("when-you-wake-up-1");
+const firstBlock = response.data.blocks[0];
+console.log(firstBlock);
+
+const firstRecording = response.data.recordings[0];
+if (firstRecording) {
+  console.log(await client.audioUrl(firstRecording.objectKey));
+}
 ```
 
 The prerelease defaults to `https://api.staging.opendua.org`; pass `baseUrl` to
 use another environment. Methods cover entries, collections, search, rights,
-pagination, and environment-neutral audio object keys. API failures throw
+pagination, and environment-neutral audio object keys. Entry responses include
+the release metadata needed to resolve their recordings. API failures throw
 `OpenDuaError` with `status`, `code`, `details`, and `retryAfterSeconds`.
 
 The SDK source is MIT licensed. OpenDua editorial text and dataset structure

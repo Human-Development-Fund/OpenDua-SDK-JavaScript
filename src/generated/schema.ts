@@ -11,104 +11,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** API health */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["Health"];
-                    };
-                };
-                /** @description The current ETag matches; no body is returned */
-                304: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                400: components["responses"]["BadRequest"];
-                429: components["responses"]["RateLimited"];
-                503: components["responses"]["Unavailable"];
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        /** API health headers */
-        head: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Bodyless health response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        patch?: never;
-        trace?: never;
-    };
-    "/v1": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** API and current release metadata */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Immutable dataset version. Omit to use the current release. */
-                    version?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": Record<string, never>;
-                    };
-                };
-                /** @description The current ETag matches; no body is returned */
-                304: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                400: components["responses"]["BadRequest"];
-                429: components["responses"]["RateLimited"];
-                503: components["responses"]["Unavailable"];
-            };
-        };
+        /** Check API health */
+        get: operations["getHealth"];
         put?: never;
         post?: never;
         delete?: never;
@@ -117,7 +21,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/duas": {
+    "/v2": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get API and current release information */
+        get: operations["getApiInfo"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/duas": {
         parameters: {
             query?: never;
             header?: never;
@@ -125,43 +46,7 @@ export interface paths {
             cookie?: never;
         };
         /** List entries */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Immutable dataset version. Omit to use the current release. */
-                    version?: string;
-                    /** @description Page size. */
-                    limit?: number;
-                    /** @description Opaque cursor returned by the preceding page. */
-                    cursor?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["EntryPage"];
-                    };
-                };
-                /** @description The current ETag matches; no body is returned */
-                304: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                400: components["responses"]["BadRequest"];
-                429: components["responses"]["RateLimited"];
-                503: components["responses"]["Unavailable"];
-            };
-        };
+        get: operations["listDuas"];
         put?: never;
         post?: never;
         delete?: never;
@@ -170,7 +55,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/duas/{slug}": {
+    "/v2/duas/{slug}": {
         parameters: {
             query?: never;
             header?: never;
@@ -178,43 +63,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get one entry by slug or stable ID */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Immutable dataset version. Omit to use the current release. */
-                    version?: string;
-                };
-                header?: never;
-                path: {
-                    /** @description Entry slug or stable ID such as OD-001. */
-                    slug: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["PublicEntry"];
-                    };
-                };
-                /** @description The current ETag matches; no body is returned */
-                304: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                400: components["responses"]["BadRequest"];
-                404: components["responses"]["NotFound"];
-                429: components["responses"]["RateLimited"];
-                503: components["responses"]["Unavailable"];
-            };
-        };
+        get: operations["getDua"];
         put?: never;
         post?: never;
         delete?: never;
@@ -223,7 +72,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/collections/{slug}": {
+    "/v2/collections/{slug}": {
         parameters: {
             query?: never;
             header?: never;
@@ -231,46 +80,7 @@ export interface paths {
             cookie?: never;
         };
         /** List one chapter collection */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Immutable dataset version. Omit to use the current release. */
-                    version?: string;
-                    /** @description Page size. */
-                    limit?: number;
-                    /** @description Opaque cursor returned by the preceding page. */
-                    cursor?: string;
-                };
-                header?: never;
-                path: {
-                    slug: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["EntryPage"];
-                    };
-                };
-                /** @description The current ETag matches; no body is returned */
-                304: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                400: components["responses"]["BadRequest"];
-                404: components["responses"]["NotFound"];
-                429: components["responses"]["RateLimited"];
-                503: components["responses"]["Unavailable"];
-            };
-        };
+        get: operations["listCollection"];
         put?: never;
         post?: never;
         delete?: never;
@@ -279,53 +89,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/search": {
+    "/v2/tags/{slug}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Search Arabic, transliteration, English, sources, categories and tags */
-        get: {
-            parameters: {
-                query: {
-                    /** @description Search query. */
-                    q: string;
-                    /** @description Immutable dataset version. Omit to use the current release. */
-                    version?: string;
-                    /** @description Page size. */
-                    limit?: number;
-                    /** @description Opaque cursor returned by the preceding page. */
-                    cursor?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["EntryPage"];
-                    };
-                };
-                /** @description The current ETag matches; no body is returned */
-                304: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                400: components["responses"]["BadRequest"];
-                429: components["responses"]["RateLimited"];
-                503: components["responses"]["Unavailable"];
-            };
-        };
+        /** List entries carrying one tag */
+        get: operations["listTag"];
         put?: never;
         post?: never;
         delete?: never;
@@ -334,47 +106,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/rights": {
+    "/v2/search": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get the field-group rights registry */
-        get: {
-            parameters: {
-                query?: {
-                    /** @description Immutable dataset version. Omit to use the current release. */
-                    version?: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description Successful response */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": Record<string, never>;
-                    };
-                };
-                /** @description The current ETag matches; no body is returned */
-                304: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                400: components["responses"]["BadRequest"];
-                429: components["responses"]["RateLimited"];
-                503: components["responses"]["Unavailable"];
-            };
+        /** Search published text, sources, collections and tags */
+        get: operations["searchDuas"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v2/rights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
+        /** Get the rights registry */
+        get: operations["getRights"];
         put?: never;
         post?: never;
         delete?: never;
@@ -387,111 +144,236 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** OpenDua public entry */
-        PublicEntry: {
-            id: string;
-            slug: string;
-            title: string;
-            arabic: string;
-            /** @enum {unknown} */
-            form: "dua" | "quran" | "instruction" | "report";
-            rubric: components["schemas"]["PublicEntry"]["$defs"]["nullableRubric"];
-            closing: components["schemas"]["PublicEntry"]["$defs"]["nullableRubric"];
-            parts: components["schemas"]["PublicEntry"]["$defs"]["part"][];
-            asides: null | components["schemas"]["PublicEntry"]["$defs"]["asides"];
-            countRubric: null | components["schemas"]["PublicEntry"]["$defs"]["countRubric"];
-            note: string | null;
-            noteArabic: string | null;
-            /** @enum {unknown} */
-            arabicScript: "imlaei" | "uthmani";
-            incipit: string;
-            transliteration: string;
-            transliterationSource: string;
-            translation: string;
-            translationSource: string;
-            source: string;
-            grading: null | components["schemas"]["PublicEntry"]["$defs"]["grading"][];
-            gradingNote: string | null;
-            footnotes: string[];
-            virtues: null | {
-                text: string;
-                source: string;
-            };
-            repetition: number;
-            categories: string[];
-            tags: string[];
-            audio: components["schemas"]["PublicEntry"]["$defs"]["audio"];
-            review: components["schemas"]["PublicEntry"]["$defs"]["review"];
-            contentVersion: number;
-            rightsProfile: string;
-            contentHash: string;
-            $defs: {
-                nullableRubric: null | components["schemas"]["PublicEntry"]["$defs"]["rubric"];
-                rubric: {
-                    /** @enum {unknown} */
-                    kind: "instruction" | "narration";
-                    text: string;
-                    transliteration: string | null;
-                    translation: string | null;
-                    translationSource: string;
-                };
-                audio: {
-                    objectKey: string;
-                    durationSeconds: number;
-                    sampleRateHz: number;
-                    reciter: string;
-                    note?: string;
-                };
-                part: {
-                    label?: string;
-                    arabic: string;
-                    transliteration: string;
-                    translation: string;
-                    repetition: number;
-                    count: null | components["schemas"]["PublicEntry"]["$defs"]["partCount"];
-                    rubric: components["schemas"]["PublicEntry"]["$defs"]["nullableRubric"];
-                    audio: components["schemas"]["PublicEntry"]["$defs"]["audio"];
-                };
-                partCount: {
-                    ar: string | null;
-                    en: string | null;
-                    enSource: string | null;
-                    /** @enum {unknown} */
-                    placement: "before" | "after";
-                };
-                aside: {
-                    text: string;
-                    source: string;
-                };
-                asides: {
-                    arabic: components["schemas"]["PublicEntry"]["$defs"]["aside"][];
-                    transliteration: components["schemas"]["PublicEntry"]["$defs"]["aside"][];
-                    translation: components["schemas"]["PublicEntry"]["$defs"]["aside"][];
-                };
-                countRubric: {
-                    ar: string;
-                    en: string | null;
-                    enSource: string;
-                };
-                grading: {
-                    grade: string;
-                    by: string[];
-                };
-                review: {
-                    /** @enum {unknown} */
-                    status: "unreviewed" | "reviewed" | "sourced" | "rejected";
-                    by: string | null;
-                    /** Format: date */
-                    date: string | null;
-                };
-            };
+        Hash: string;
+        SourceIdentity: {
+            /** @description Stable source-work identifier. */
+            workId: string;
+            /** @description Human-readable source-work name. */
+            workName: string;
+            /** @description Entry locator within the source work. */
+            entryNumber: string;
+            /** @description Citation ready for display. */
+            citation: string;
         };
-        Metadata: {
-            apiVersion: string;
-            datasetVersion: string;
-            schemaVersion: string;
-            audioVersion: string;
+        CollectionMembership: {
+            /** @description Stable collection identifier. */
+            id: string;
+            /** @description Reader-facing collection name. */
+            name: string;
+            /** @description Chapter number in the source work, or null for an unnumbered collection. */
+            chapterNumber: number | null;
+            /** @description This entry's one-based position in the collection. */
+            entryPosition: number;
+            /** @description Total entries in the collection for this release. */
+            entryTotal: number;
+        };
+        ContentBlock: components["schemas"]["ContextBlock"] | components["schemas"]["RecitationBlock"];
+        ContextBlock: {
+            /** @description Stable position-based ID within this entry revision. */
+            id: string;
+            /**
+             * @description The role of this non-recited text.
+             * @enum {unknown}
+             */
+            type: "instruction" | "narration" | "note";
+            /** @description Arabic wording, or null when the source gives none. */
+            arabic: string | null;
+            /** @description Transliteration when relevant, otherwise null. Instructions normally use null. */
+            transliteration: string | null;
+            /** @description English wording, or null when unavailable. */
+            english: string | null;
+            /** @description Who prepared the English wording, or null when English is unavailable. */
+            englishSource: string | null;
+            /** @description Editorial wording identified within this context block. */
+            annotations: components["schemas"]["Annotation"][];
+        } & unknown;
+        RecitationBlock: {
+            /** @description Stable position-based ID within this entry revision. */
+            id: string;
+            /**
+             * @description Marks words intended to be recited.
+             * @constant
+             */
+            type: "recitation";
+            /** @description Variant or part name, or null when no label is needed. */
+            label: string | null;
+            /** @description Exact Arabic words to recite. */
+            arabic: string;
+            /**
+             * @description Arabic writing style used by this block.
+             * @enum {unknown}
+             */
+            arabicScript: "imlaei" | "uthmani";
+            /** @description Latin-script reading aid, or null when unavailable. */
+            transliteration: string | null;
+            /** @description Who prepared the transliteration, or null when none is published. */
+            transliterationSource: string | null;
+            /** @description English meaning, or null when unavailable. */
+            english: string | null;
+            /** @description Who prepared the English meaning, or null when none is published. */
+            englishSource: string | null;
+            /** @description Positive recitation count and optional wording, or null when no single count applies. */
+            repetition: null | components["schemas"]["Repetition"];
+            /** @description Non-recited wording anchored to this block. */
+            annotations: components["schemas"]["Annotation"][];
+        } & (unknown & unknown);
+        Repetition: {
+            /** @description Number of times to recite this block. */
+            count: number;
+            /** @description Source wording that adds timing or alternatives to the number. */
+            instruction: null | components["schemas"]["RepetitionInstruction"];
+        };
+        RepetitionInstruction: {
+            arabic: string | null;
+            english: string | null;
+            englishSource: string | null;
+        } & unknown;
+        Annotation: {
+            id: string;
+            /**
+             * @description Whether wording was removed from recitable text or identified within non-recited context.
+             * @enum {unknown}
+             */
+            kind: "not-recited" | "editorial-note";
+            /** @enum {unknown} */
+            language: "arabic" | "transliteration" | "english";
+            text: string;
+            source: string;
+            anchor: components["schemas"]["AnnotationAnchor"];
+        };
+        AnnotationAnchor: {
+            /** @description Content block to which the note belongs. */
+            blockId: string;
+            /** @description Position in the named language field, counted as UTF-16 code units. For removed non-recited wording, this is its insertion point. */
+            codeUnitOffset: number;
+        };
+        Recording: {
+            id: string;
+            /** @description Immutable path under an audio origin. It is never an absolute URL. */
+            objectKey: string;
+            /** @description Rounded recording length in seconds. */
+            durationSeconds: number;
+            /** @description Audio sample rate in hertz. */
+            sampleRateHz: number;
+            reciter: string;
+            /** @description Recitation blocks heard in this recording, in playback order. */
+            covers: string[];
+            note?: string;
+        };
+        Reference: {
+            id: string;
+            /** @enum {unknown} */
+            type: "source-note" | "hadith" | "quran" | "book" | "web";
+            /** @description BCP 47 language tag for the citation text. */
+            language: string;
+            citation: string;
+            workId?: string;
+            locator?: string;
             /** Format: uri */
+            url?: string;
+        };
+        HadithGrade: {
+            grade: string;
+            by: string[];
+        };
+        Reviews: {
+            source: components["schemas"]["Review"];
+            translation: components["schemas"]["Review"];
+            scholar: components["schemas"]["Review"];
+            audio: components["schemas"]["Review"];
+        };
+        Review: {
+            /** @enum {unknown} */
+            status: "not-started" | "in-progress" | "completed" | "not-applicable";
+            reviewer: string | null;
+            method: string | null;
+            /** Format: date */
+            date: string | null;
+        } & unknown;
+        Statement: {
+            label: string;
+            notice: string;
+            licence?: string;
+            /** Format: uri */
+            url?: string;
+            attribution?: string;
+        };
+        Profile: {
+            [key: string]: string;
+        };
+        /**
+         * OpenDua public entry v2
+         * @description One source-traceable OpenDua entry. The ordered blocks array is the only authority for text and reading order. Recordings identify the recitation blocks they cover.
+         */
+        PublicEntry: {
+            /**
+             * @description Stable OpenDua identifier. It is never reused and is not limited to three digits.
+             * @example OD-001
+             */
+            id: string;
+            /**
+             * @description Stable URL-friendly name for the entry.
+             * @example when-you-wake-up-1
+             */
+            slug: string;
+            /** @description Reader-facing English title. */
+            title: string;
+            /**
+             * @description Whether the entry contains a supplication, Quran passage, action to perform, or hadith report.
+             * @enum {unknown}
+             */
+            form: "dua" | "quran" | "instruction" | "report";
+            /** @description The primary work and numbered entry from which this record was prepared. */
+            source: components["schemas"]["SourceIdentity"];
+            /** @description Chapters or other browsing collections containing this entry. Positions are one-based. */
+            collections: components["schemas"]["CollectionMembership"][];
+            /** @description Authoritative text in display order. Clients must not reconstruct text from titles or references. */
+            blocks: components["schemas"]["ContentBlock"][];
+            /** @description Playable recordings in order. An empty list means that no recording is available or required. */
+            recordings: components["schemas"]["Recording"][];
+            /** @description Additional source notes and citations, in source order. */
+            references: components["schemas"]["Reference"][];
+            /** @description Published hadith assessments. An empty list means that no assessment is published. */
+            hadithGrades: components["schemas"]["HadithGrade"][];
+            /** @description Why no settled hadith assessment is published, or null when no explanation is needed. */
+            gradingNote: string | null;
+            /** @description Stable topic and source labels used for filtering. */
+            tags: string[];
+            /** @description Named source, translation, scholar, and audio review states. Staging does not imply scholarly approval. */
+            reviews: components["schemas"]["Reviews"];
+            /** @description Entry-level revision, increased when displayed or recited content changes. */
+            revision: number;
+            /** @description Identifier in the rights registry for this entry's text, metadata, and recordings. */
+            rightsProfile: string;
+            /** @description SHA-256 of canonical compact JSON for blocks only. */
+            textHash: components["schemas"]["Hash"];
+            /** @description SHA-256 of canonical compact JSON for recordings only. */
+            mediaHash: components["schemas"]["Hash"];
+            /** @description SHA-256 of the complete canonical entry before textHash, mediaHash, and recordHash are added. */
+            recordHash: components["schemas"]["Hash"];
+        } & ({
+            /** @enum {unknown} */
+            form?: "dua" | "quran";
+            blocks?: unknown;
+        } | {
+            /** @enum {unknown} */
+            form?: "instruction" | "report";
+            blocks?: unknown;
+            recordings?: unknown;
+        });
+        Metadata: {
+            /** @example 2.0.0 */
+            apiVersion: string;
+            /** @example 0.0.3 */
+            datasetVersion: string;
+            /** @example 2.0.0 */
+            schemaVersion: string;
+            /** @example 0.0.2 */
+            audioVersion: string;
+            /**
+             * Format: uri
+             * @description Prefix for recording objectKey values.
+             */
             audioBaseUrl: string;
             rightsRegistryVersion: string;
         };
@@ -506,18 +388,71 @@ export interface components {
             meta: components["schemas"]["Metadata"];
             pagination: components["schemas"]["Pagination"];
         };
+        CollectionPage: {
+            data: components["schemas"]["PublicEntry"][];
+            meta: components["schemas"]["Metadata"];
+            pagination: components["schemas"]["Pagination"];
+            collection: string;
+        };
+        TagPage: {
+            data: components["schemas"]["PublicEntry"][];
+            meta: components["schemas"]["Metadata"];
+            pagination: components["schemas"]["Pagination"];
+            tag: string;
+        };
+        SearchPage: {
+            data: components["schemas"]["PublicEntry"][];
+            meta: components["schemas"]["Metadata"];
+            pagination: components["schemas"]["Pagination"];
+            query: string;
+        };
+        EntryResponse: {
+            data: components["schemas"]["PublicEntry"];
+            meta: components["schemas"]["Metadata"];
+        };
+        ApiInfo: {
+            /** @constant */
+            name: "OpenDua API";
+            entryCount: number;
+            /** Format: date */
+            released: string;
+            endpoints: string[];
+        };
+        ApiInfoResponse: {
+            data: components["schemas"]["ApiInfo"];
+            meta: components["schemas"]["Metadata"];
+        };
+        /**
+         * OpenDua rights registry v2
+         * @description Reusable rights statements and the entry profiles that select them.
+         */
+        RightsRegistry: {
+            version: string;
+            statements: {
+                [key: string]: components["schemas"]["Statement"];
+            };
+            profiles: {
+                [key: string]: components["schemas"]["Profile"];
+            };
+            defaults: {
+                entryProfile: string;
+            };
+        };
         Health: {
             /** @constant */
             status: "ok";
             environment: string;
             apiVersion: string;
         };
+        ErrorDetail: {
+            [key: string]: unknown;
+        };
         Error: {
             error: {
                 code: string;
                 message: string;
                 status: number;
-                details?: Record<string, never>;
+                details?: components["schemas"]["ErrorDetail"];
             };
         };
     };
@@ -533,6 +468,15 @@ export interface components {
         };
         /** @description Requested entry, collection or version does not exist */
         NotFound: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description The requested data release belongs to another API schema version */
+        IncompatibleVersion: {
             headers: {
                 [name: string]: unknown;
             };
@@ -566,4 +510,295 @@ export interface components {
     pathItems: never;
 }
 export type $defs = Record<string, never>;
-export type operations = Record<string, never>;
+export interface operations {
+    getHealth: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Health"];
+                };
+            };
+        };
+    };
+    getApiInfo: {
+        parameters: {
+            query?: {
+                /** @description Immutable dataset version. Omit to use the current release. */
+                version?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApiInfoResponse"];
+                };
+            };
+            /** @description The current ETag matches; no body is returned */
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["IncompatibleVersion"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["Unavailable"];
+        };
+    };
+    listDuas: {
+        parameters: {
+            query?: {
+                /** @description Immutable dataset version. Omit to use the current release. */
+                version?: string;
+                /** @description Page size. */
+                limit?: number;
+                /** @description Opaque cursor returned by the preceding page. */
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntryPage"];
+                };
+            };
+            /** @description The current ETag matches; no body is returned */
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["IncompatibleVersion"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["Unavailable"];
+        };
+    };
+    getDua: {
+        parameters: {
+            query?: {
+                /** @description Immutable dataset version. Omit to use the current release. */
+                version?: string;
+            };
+            header?: never;
+            path: {
+                /** @description Entry slug or stable ID such as OD-001. */
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntryResponse"];
+                };
+            };
+            /** @description The current ETag matches; no body is returned */
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["IncompatibleVersion"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["Unavailable"];
+        };
+    };
+    listCollection: {
+        parameters: {
+            query?: {
+                /** @description Immutable dataset version. Omit to use the current release. */
+                version?: string;
+                /** @description Page size. */
+                limit?: number;
+                /** @description Opaque cursor returned by the preceding page. */
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionPage"];
+                };
+            };
+            /** @description The current ETag matches; no body is returned */
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["IncompatibleVersion"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["Unavailable"];
+        };
+    };
+    listTag: {
+        parameters: {
+            query?: {
+                /** @description Immutable dataset version. Omit to use the current release. */
+                version?: string;
+                /** @description Page size. */
+                limit?: number;
+                /** @description Opaque cursor returned by the preceding page. */
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TagPage"];
+                };
+            };
+            /** @description The current ETag matches; no body is returned */
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["IncompatibleVersion"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["Unavailable"];
+        };
+    };
+    searchDuas: {
+        parameters: {
+            query: {
+                /** @description Search query. */
+                q: string;
+                /** @description Immutable dataset version. Omit to use the current release. */
+                version?: string;
+                /** @description Page size. */
+                limit?: number;
+                /** @description Opaque cursor returned by the preceding page. */
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchPage"];
+                };
+            };
+            /** @description The current ETag matches; no body is returned */
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["IncompatibleVersion"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["Unavailable"];
+        };
+    };
+    getRights: {
+        parameters: {
+            query?: {
+                /** @description Immutable dataset version. Omit to use the current release. */
+                version?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RightsRegistry"];
+                };
+            };
+            /** @description The current ETag matches; no body is returned */
+            304: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: components["responses"]["BadRequest"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["IncompatibleVersion"];
+            429: components["responses"]["RateLimited"];
+            503: components["responses"]["Unavailable"];
+        };
+    };
+}

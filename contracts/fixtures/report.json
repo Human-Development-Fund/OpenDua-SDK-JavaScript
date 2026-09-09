@@ -1,0 +1,88 @@
+{
+  "id": "OD-149",
+  "slug": "reward-for-visiting-the-sick",
+  "title": "The reward for visiting the sick",
+  "form": "report",
+  "source": {
+    "workId": "hisn-al-muslim",
+    "workName": "Hisn al-Muslim",
+    "entryNumber": "149",
+    "citation": "Hisn al-Muslim 149"
+  },
+  "collections": [
+    {
+      "id": "reward-for-visiting-the-sick",
+      "name": "The reward for visiting the sick",
+      "chapterNumber": 50,
+      "entryPosition": 1,
+      "entryTotal": 1
+    }
+  ],
+  "blocks": [
+    {
+      "id": "context-1",
+      "type": "narration",
+      "arabic": "قَالَ النَّبِيُّ صلى الله عليه وسلم:",
+      "transliteration": null,
+      "english": "Ali Ibn Abee Talib related that he heard the Messenger of Allah say:",
+      "englishSource": "open-dua",
+      "annotations": []
+    },
+    {
+      "id": "context-2",
+      "type": "narration",
+      "arabic": "إِذَا عَادَ الرَّجُلُ أَخَاهُ الْمُسْلِمَ مَشَى فِي خِرَافَةِ الْجَنَّةِ حَتَّى يَجْلِسَ، فَإِذَا جَلَسَ غَمَرَتْهُ الرَّحْمَةُ، فَإِنْ كَانَ غُدْوَةً صَلَّى عَلَيْهِ سَبْعُونَ أَلْفَ مَلَكٍ حَتَّى يُمْسِيَ، وَإِنْ كَانَ مَسَاءً صَلَّى عَلَيْهِ سَبْعُونَ أَلْفَ مَلَكٍ حَتَّى يُصْبِحَ",
+      "transliteration": null,
+      "english": "‘If a man calls on his sick Muslim brother, it is as if he walks reaping the fruits of Paradise until he sits, and when he sits he is showered in mercy, and if this was in the morning, seventy thousand angles send prayers upon him until the evening, and if this was in the evening, seventy thousand angles send prayers upon him until the morning.",
+      "englishSource": "open-dua",
+      "annotations": []
+    }
+  ],
+  "recordings": [],
+  "references": [
+    {
+      "id": "reference-1",
+      "type": "source-note",
+      "language": "ar",
+      "citation": "رواه الترمذي، برقم 969، وابن ماجه، برقم 1442، وأحمد، برقم 975، وانظر: صحيح ابن ماجه، 1/244 وصحيح الترمذي، 1/286، وصححه أيضاً أحمد شاكر."
+    }
+  ],
+  "hadithGrades": [],
+  "gradingNote": "Reference as printed in Hisn al-Muslim; grading pending review",
+  "tags": [
+    "hisn-al-muslim",
+    "report",
+    "illness-and-healing"
+  ],
+  "reviews": {
+    "source": {
+      "status": "in-progress",
+      "reviewer": null,
+      "method": null,
+      "date": null
+    },
+    "translation": {
+      "status": "in-progress",
+      "reviewer": null,
+      "method": null,
+      "date": null
+    },
+    "scholar": {
+      "status": "not-started",
+      "reviewer": null,
+      "method": null,
+      "date": null
+    },
+    "audio": {
+      "status": "not-applicable",
+      "reviewer": null,
+      "method": null,
+      "date": null
+    }
+  },
+  "revision": 2,
+  "rightsProfile": "hisn-open-dua-modern",
+  "textHash": "sha256:304fa95e6441b08b0159b9ebcf75e075795b53432eb87b08089880b8ef91f855",
+  "mediaHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "recordHash": "sha256:658c6865be59efc7d72d3fc9c9152854428e9de3d2f3b71669fc019917c82767"
+}

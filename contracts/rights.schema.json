@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opendua.org/schema/v2/rights.schema.json",
+  "title": "OpenDua rights registry v2",
+  "description": "Reusable rights statements and the entry profiles that select them.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "statements", "profiles", "defaults"],
+  "properties": {
+    "version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
+    "statements": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/statement"},
+      "minProperties": 1
+    },
+    "profiles": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/profile"},
+      "minProperties": 1
+    },
+    "defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entryProfile"],
+      "properties": {"entryProfile": {"type": "string", "minLength": 1}}
+    }
+  },
+  "$defs": {
+    "statement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "notice"],
+      "properties": {
+        "label": {"type": "string", "minLength": 1},
+        "notice": {"type": "string", "minLength": 1},
+        "licence": {"type": "string", "minLength": 1},
+        "url": {"type": "string", "format": "uri"},
+        "attribution": {"type": "string", "minLength": 1}
+      }
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": {"type": "string", "minLength": 1},
+      "minProperties": 1
+    }
+  }
+}

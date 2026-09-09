@@ -1,0 +1,336 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opendua.org/schema/v2/public-entry.schema.json",
+  "title": "OpenDua public entry v2",
+  "description": "One source-traceable OpenDua entry. The ordered blocks array is the only authority for text and reading order. Recordings identify the recitation blocks they cover.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id", "slug", "title", "form", "source", "collections", "blocks",
+    "recordings", "references", "hadithGrades", "gradingNote", "tags",
+    "reviews", "revision", "rightsProfile", "textHash", "mediaHash", "recordHash"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^OD-[A-Za-z0-9][A-Za-z0-9._-]*$",
+      "description": "Stable OpenDua identifier. It is never reused and is not limited to three digits.",
+      "examples": ["OD-001"]
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "description": "Stable URL-friendly name for the entry.",
+      "examples": ["when-you-wake-up-1"]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Reader-facing English title."
+    },
+    "form": {
+      "enum": ["dua", "quran", "instruction", "report"],
+      "description": "Whether the entry contains a supplication, Quran passage, action to perform, or hadith report."
+    },
+    "source": {
+      "$ref": "#/$defs/sourceIdentity",
+      "description": "The primary work and numbered entry from which this record was prepared."
+    },
+    "collections": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/collectionMembership"},
+      "minItems": 1,
+      "description": "Chapters or other browsing collections containing this entry. Positions are one-based."
+    },
+    "blocks": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/contentBlock"},
+      "minItems": 1,
+      "description": "Authoritative text in display order. Clients must not reconstruct text from titles or references."
+    },
+    "recordings": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/recording"},
+      "description": "Playable recordings in order. An empty list means that no recording is available or required."
+    },
+    "references": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/reference"},
+      "description": "Additional source notes and citations, in source order."
+    },
+    "hadithGrades": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/hadithGrade"},
+      "description": "Published hadith assessments. An empty list means that no assessment is published."
+    },
+    "gradingNote": {
+      "type": ["string", "null"],
+      "description": "Why no settled hadith assessment is published, or null when no explanation is needed."
+    },
+    "tags": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true,
+      "description": "Stable topic and source labels used for filtering."
+    },
+    "reviews": {
+      "$ref": "#/$defs/reviews",
+      "description": "Named source, translation, scholar, and audio review states. Staging does not imply scholarly approval."
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Entry-level revision, increased when displayed or recited content changes."
+    },
+    "rightsProfile": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identifier in the rights registry for this entry's text, metadata, and recordings."
+    },
+    "textHash": {
+      "$ref": "#/$defs/hash",
+      "description": "SHA-256 of canonical compact JSON for blocks only."
+    },
+    "mediaHash": {
+      "$ref": "#/$defs/hash",
+      "description": "SHA-256 of canonical compact JSON for recordings only."
+    },
+    "recordHash": {
+      "$ref": "#/$defs/hash",
+      "description": "SHA-256 of the complete canonical entry before textHash, mediaHash, and recordHash are added."
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "form": {"enum": ["dua", "quran"]},
+        "blocks": {"contains": {"$ref": "#/$defs/recitationBlock"}}
+      }
+    },
+    {
+      "properties": {
+        "form": {"enum": ["instruction", "report"]},
+        "blocks": {"not": {"contains": {"$ref": "#/$defs/recitationBlock"}}},
+        "recordings": {"maxItems": 0}
+      }
+    }
+  ],
+  "$defs": {
+    "hash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "sourceIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["workId", "workName", "entryNumber", "citation"],
+      "properties": {
+        "workId": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "description": "Stable source-work identifier."},
+        "workName": {"type": "string", "minLength": 1, "description": "Human-readable source-work name."},
+        "entryNumber": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$", "description": "Entry locator within the source work."},
+        "citation": {"type": "string", "minLength": 1, "description": "Citation ready for display."}
+      }
+    },
+    "collectionMembership": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "chapterNumber", "entryPosition", "entryTotal"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "description": "Stable collection identifier."},
+        "name": {"type": "string", "minLength": 1, "description": "Reader-facing collection name."},
+        "chapterNumber": {"type": ["integer", "null"], "minimum": 1, "description": "Chapter number in the source work, or null for an unnumbered collection."},
+        "entryPosition": {"type": "integer", "minimum": 1, "description": "This entry's one-based position in the collection."},
+        "entryTotal": {"type": "integer", "minimum": 1, "description": "Total entries in the collection for this release."}
+      }
+    },
+    "contentBlock": {
+      "oneOf": [
+        {"$ref": "#/$defs/contextBlock"},
+        {"$ref": "#/$defs/recitationBlock"}
+      ]
+    },
+    "contextBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "arabic", "transliteration", "english", "englishSource", "annotations"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^context-[1-9][0-9]*$", "description": "Stable position-based ID within this entry revision."},
+        "type": {"enum": ["instruction", "narration", "note"], "description": "The role of this non-recited text."},
+        "arabic": {"type": ["string", "null"], "minLength": 1, "description": "Arabic wording, or null when the source gives none."},
+        "transliteration": {"type": ["string", "null"], "minLength": 1, "description": "Transliteration when relevant, otherwise null. Instructions normally use null."},
+        "english": {"type": ["string", "null"], "minLength": 1, "description": "English wording, or null when unavailable."},
+        "englishSource": {"type": ["string", "null"], "minLength": 1, "description": "Who prepared the English wording, or null when English is unavailable."},
+        "annotations": {"type": "array", "items": {"$ref": "#/$defs/annotation"}, "description": "Editorial wording identified within this context block."}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"english": {"type": "null"}}, "required": ["english"]},
+          "then": {"properties": {"englishSource": {"type": "null"}}},
+          "else": {"properties": {"englishSource": {"type": "string", "minLength": 1}}}
+        }
+      ]
+    },
+    "recitationBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "type", "label", "arabic", "arabicScript", "transliteration",
+        "transliterationSource", "english", "englishSource", "repetition", "annotations"
+      ],
+      "properties": {
+        "id": {"type": "string", "pattern": "^recitation-[1-9][0-9]*$", "description": "Stable position-based ID within this entry revision."},
+        "type": {"const": "recitation", "description": "Marks words intended to be recited."},
+        "label": {"type": ["string", "null"], "minLength": 1, "description": "Variant or part name, or null when no label is needed."},
+        "arabic": {"type": "string", "minLength": 1, "description": "Exact Arabic words to recite."},
+        "arabicScript": {"enum": ["imlaei", "uthmani"], "description": "Arabic writing style used by this block."},
+        "transliteration": {"type": ["string", "null"], "minLength": 1, "description": "Latin-script reading aid, or null when unavailable."},
+        "transliterationSource": {"type": ["string", "null"], "minLength": 1, "description": "Who prepared the transliteration, or null when none is published."},
+        "english": {"type": ["string", "null"], "minLength": 1, "description": "English meaning, or null when unavailable."},
+        "englishSource": {"type": ["string", "null"], "minLength": 1, "description": "Who prepared the English meaning, or null when none is published."},
+        "repetition": {
+          "anyOf": [{"type": "null"}, {"$ref": "#/$defs/repetition"}],
+          "description": "Positive recitation count and optional wording, or null when no single count applies."
+        },
+        "annotations": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/annotation"},
+          "description": "Non-recited wording anchored to this block."
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"transliteration": {"type": "null"}}, "required": ["transliteration"]},
+          "then": {"properties": {"transliterationSource": {"type": "null"}}},
+          "else": {"properties": {"transliterationSource": {"type": "string", "minLength": 1}}}
+        },
+        {
+          "if": {"properties": {"english": {"type": "null"}}, "required": ["english"]},
+          "then": {"properties": {"englishSource": {"type": "null"}}},
+          "else": {"properties": {"englishSource": {"type": "string", "minLength": 1}}}
+        }
+      ]
+    },
+    "repetition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["count", "instruction"],
+      "properties": {
+        "count": {"type": "integer", "minimum": 1, "description": "Number of times to recite this block."},
+        "instruction": {
+          "anyOf": [{"type": "null"}, {"$ref": "#/$defs/repetitionInstruction"}],
+          "description": "Source wording that adds timing or alternatives to the number."
+        }
+      }
+    },
+    "repetitionInstruction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["arabic", "english", "englishSource"],
+      "properties": {
+        "arabic": {"type": ["string", "null"], "minLength": 1},
+        "english": {"type": ["string", "null"], "minLength": 1},
+        "englishSource": {"type": ["string", "null"], "minLength": 1}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"english": {"type": "null"}}, "required": ["english"]},
+          "then": {"properties": {"englishSource": {"type": "null"}}},
+          "else": {"properties": {"englishSource": {"type": "string", "minLength": 1}}}
+        }
+      ]
+    },
+    "annotation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "language", "text", "source", "anchor"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^annotation-[a-z0-9]+(?:-[a-z0-9]+)*$"},
+        "kind": {"enum": ["not-recited", "editorial-note"], "description": "Whether wording was removed from recitable text or identified within non-recited context."},
+        "language": {"enum": ["arabic", "transliteration", "english"]},
+        "text": {"type": "string", "minLength": 1},
+        "source": {"type": "string", "minLength": 1},
+        "anchor": {"$ref": "#/$defs/annotationAnchor"}
+      }
+    },
+    "annotationAnchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["blockId", "codeUnitOffset"],
+      "properties": {
+        "blockId": {"type": "string", "pattern": "^(?:recitation|context)-[1-9][0-9]*$", "description": "Content block to which the note belongs."},
+        "codeUnitOffset": {"type": "integer", "minimum": 0, "description": "Position in the named language field, counted as UTF-16 code units. For removed non-recited wording, this is its insertion point."}
+      }
+    },
+    "recording": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "objectKey", "durationSeconds", "sampleRateHz", "reciter", "covers"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^recording-[1-9][0-9]*$"},
+        "objectKey": {"type": "string", "pattern": "^[a-z0-9][A-Za-z0-9._/-]*$", "description": "Immutable path under an audio origin. It is never an absolute URL."},
+        "durationSeconds": {"type": "integer", "minimum": 1, "description": "Rounded recording length in seconds."},
+        "sampleRateHz": {"type": "integer", "minimum": 1, "description": "Audio sample rate in hertz."},
+        "reciter": {"type": "string", "minLength": 1},
+        "covers": {"type": "array", "items": {"type": "string", "pattern": "^recitation-[1-9][0-9]*$"}, "minItems": 1, "uniqueItems": true, "description": "Recitation blocks heard in this recording, in playback order."},
+        "note": {"type": "string", "minLength": 1}
+      }
+    },
+    "reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "language", "citation"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^reference-[1-9][0-9]*$"},
+        "type": {"enum": ["source-note", "hadith", "quran", "book", "web"]},
+        "language": {"type": "string", "pattern": "^[a-z]{2,3}(?:-[A-Z]{2})?$", "description": "BCP 47 language tag for the citation text."},
+        "citation": {"type": "string", "minLength": 1},
+        "workId": {"type": "string", "minLength": 1},
+        "locator": {"type": "string", "minLength": 1},
+        "url": {"type": "string", "format": "uri"}
+      }
+    },
+    "hadithGrade": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["grade", "by"],
+      "properties": {
+        "grade": {"type": "string", "minLength": 1},
+        "by": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1}
+      }
+    },
+    "reviews": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "translation", "scholar", "audio"],
+      "properties": {
+        "source": {"$ref": "#/$defs/review"},
+        "translation": {"$ref": "#/$defs/review"},
+        "scholar": {"$ref": "#/$defs/review"},
+        "audio": {"$ref": "#/$defs/review"}
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reviewer", "method", "date"],
+      "properties": {
+        "status": {"enum": ["not-started", "in-progress", "completed", "not-applicable"]},
+        "reviewer": {"type": ["string", "null"], "minLength": 1},
+        "method": {"type": ["string", "null"], "minLength": 1},
+        "date": {"type": ["string", "null"], "format": "date"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"status": {"const": "completed"}}, "required": ["status"]},
+          "then": {
+            "properties": {
+              "reviewer": {"type": "string", "minLength": 1},
+              "method": {"type": "string", "minLength": 1},
+              "date": {"type": "string", "format": "date"}
+            }
+          }
+        }
+      ]
+    }
+  }
+}

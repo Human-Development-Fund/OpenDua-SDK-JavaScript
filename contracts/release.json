@@ -1,8 +1,13 @@
 {
-  "apiVersion": "1.0.0",
-  "datasetVersion": "0.0.2",
-  "schemaVersion": "1.0.0",
-  "audioVersion": "0.0.1",
-  "fixtureId": "OD-001",
-  "openapiSha256": "7d8c04487678510bbd58c87ba41ef80a8a8ac309499d964113e4b684a8452650"
+  "apiVersion": "2.0.0",
+  "datasetVersion": "0.0.3",
+  "schemaVersion": "2.0.0",
+  "audioVersion": "0.0.2",
+  "fixtureIds": [
+    "OD-001",
+    "OD-024",
+    "OD-149",
+    "OD-077"
+  ],
+  "openapiSha256": "920b1410f1464fbfe5d383a8536b9ed315d10b7cebf37c14751fcd2fcf6d9e58"
 }

@@ -2,8 +2,13 @@ import type { components } from "./generated/schema";
 
 export type PublicEntry = components["schemas"]["PublicEntry"];
 export type EntryPage = components["schemas"]["EntryPage"];
+export type CollectionPage = components["schemas"]["CollectionPage"];
+export type TagPage = components["schemas"]["TagPage"];
+export type SearchPage = components["schemas"]["SearchPage"];
+export type EntryResponse = components["schemas"]["EntryResponse"];
+export type ApiInfoResponse = components["schemas"]["ApiInfoResponse"];
 export type ApiMetadata = components["schemas"]["Metadata"];
-export type RightsRegistry = Record<string, unknown>;
+export type RightsRegistry = components["schemas"]["RightsRegistry"];
 
 export interface OpenDuaClientOptions {
   baseUrl?: string;
@@ -46,30 +51,35 @@ export class OpenDuaClient {
     if (!this.fetch) throw new Error("A Fetch API implementation is required");
   }
 
-  async metadata(options: EntryOptions = {}): Promise<{ data: Record<string, unknown>; meta: ApiMetadata }> {
-    const response = await this.#request<{ data: Record<string, unknown>; meta: ApiMetadata }>("/v1", options);
-    this.#audioBaseUrl = response.meta.audioBaseUrl;
-    return response;
+  async metadata(options: EntryOptions = {}): Promise<ApiInfoResponse> {
+    return this.#request<ApiInfoResponse>("/v2", options);
   }
 
   listDuas(options: PageOptions = {}): Promise<EntryPage> {
-    return this.#request("/v1/duas", options);
+    return this.#request("/v2/duas", options);
   }
 
-  getDua(identifier: string, options: EntryOptions = {}): Promise<PublicEntry> {
-    return this.#request(`/v1/duas/${encodeURIComponent(identifier)}`, options);
+  getDua(identifier: string, options: EntryOptions = {}): Promise<EntryResponse> {
+    return this.#request<EntryResponse>(
+      `/v2/duas/${encodeURIComponent(identifier)}`,
+      options,
+    );
   }
 
-  listCollection(slug: string, options: PageOptions = {}): Promise<EntryPage> {
-    return this.#request(`/v1/collections/${encodeURIComponent(slug)}`, options);
+  listCollection(slug: string, options: PageOptions = {}): Promise<CollectionPage> {
+    return this.#request(`/v2/collections/${encodeURIComponent(slug)}`, options);
   }
 
-  search(query: string, options: PageOptions = {}): Promise<EntryPage> {
-    return this.#request("/v1/search", { ...options, q: query });
+  listTag(slug: string, options: PageOptions = {}): Promise<TagPage> {
+    return this.#request(`/v2/tags/${encodeURIComponent(slug)}`, options);
+  }
+
+  search(query: string, options: PageOptions = {}): Promise<SearchPage> {
+    return this.#request("/v2/search", { ...options, q: query });
   }
 
   rights(options: EntryOptions = {}): Promise<RightsRegistry> {
-    return this.#request("/v1/rights", options);
+    return this.#request("/v2/rights", options);
   }
 
   async audioUrl(objectKey: string): Promise<string> {
@@ -109,6 +119,11 @@ export class OpenDuaClient {
         Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : undefined,
       );
     }
-    return response.json() as Promise<T>;
+    const value = await response.json() as T;
+    if (value && typeof value === "object" && "meta" in value) {
+      const meta = (value as { meta?: { audioBaseUrl?: unknown } }).meta;
+      if (typeof meta?.audioBaseUrl === "string") this.#audioBaseUrl = meta.audioBaseUrl;
+    }
+    return value;
   }
 }
